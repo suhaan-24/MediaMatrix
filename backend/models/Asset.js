@@ -45,5 +45,11 @@ const assetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add compound text index for search
+assetSchema.index(
+  { title: 'text', description: 'text', tags: 'text' },
+  { weights: { title: 10, tags: 5, description: 1 } }
+);
+
 const Asset = mongoose.model('Asset', assetSchema);
 export default Asset;

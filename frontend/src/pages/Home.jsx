@@ -7,6 +7,28 @@ export default function Home({ onLoginClick }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [assets, setAssets] = useState([]);
+
+  // Fetch from Search API or master Asset API
+  const fetchAssets = async () => {
+    try {
+      const url = searchQuery 
+        ? `http://localhost:5001/api/search?q=${encodeURIComponent(searchQuery)}`
+        : `http://localhost:5001/api/assets`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) {
+        setAssets(data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch assets", err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchAssets();
+  }, []);
 
   return (
     <div className="w-full h-full min-h-screen bg-white">
@@ -65,11 +87,11 @@ export default function Home({ onLoginClick }) {
             <button className="px-4 text-gray-600 border-r border-gray-200 h-full flex items-center gap-1 text-sm font-medium hover:bg-gray-50 bg-gray-50">
               All images <span className="material-icons-outlined text-sm">expand_more</span>
             </button>
-            <input className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
+            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && fetchAssets()} className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
             <button className="px-4 text-gray-500 hover:text-gray-800 border-l border-gray-100 h-full flex items-center gap-1 text-xs">
               <span className="material-icons-outlined">image_search</span> Search by image
             </button>
-            <button onClick={() => navigate('/search')} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition">
+            <button onClick={fetchAssets} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition">
               <span className="material-icons-outlined">search</span>
             </button>
           </div>
@@ -193,113 +215,31 @@ export default function Home({ onLoginClick }) {
             </div>
           </div>
           <div className="masonry-grid">
-            <div onClick={() => navigate('/details')} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in">
-              <img alt="Love hands" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTLdqnhBus1hZSxY5_VKH_tQq4m64WW_l--mHKsupGBtNa7FGn4caHcNPPwY1xXtULb12YtHL3SDGZ_uUvWPz7Oe7kHKvOAwqutv6uHzSbMAnW8wZdj6Kt6q7YRsg0dO5SQSThymXxHn7NhyTzhwyLRfU4nCAx52k7yCIVRUo1x96iRjiMq2Ezo6KOCtvjmI7f3UJXnooVE3k0vteplnviZFg6Fbc3SLiXvMi18GEIygpw6vhBP1j1LSsfH8UZv_z3xJdcbdCd5J0" />
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-3">
-                <div className="text-white text-xs font-medium">Add to collection</div>
-                <div className="flex gap-2">
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">favorite</span></button>
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">download</span></button>
-                </div>
-              </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden bg-gray-900 text-white relative group cursor-pointer">
-              <div className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-primary rounded-full p-2"><span className="material-icons-outlined text-white">play_arrow</span></div>
-                  <div>
-                    <h4 className="text-sm font-bold">Cozy Winter</h4>
-                    <p className="text-xs text-gray-400">By Hidden</p>
+            {assets.map((asset) => (
+              <div key={asset._id} onClick={() => navigate(`/details/${asset._id}`)} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in shadow-sm hover:shadow-lg transition bg-gray-100 dark:bg-gray-800">
+                {asset.type && (asset.type.includes('video') || asset.type.includes('audio')) ? (
+                  <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500">
+                    <span className="material-icons-outlined text-5xl mb-3">{asset.type.includes('video') ? 'videocam' : 'music_note'}</span>
+                    <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate w-full text-center px-4">{asset.title}</span>
                   </div>
-                  <span className="ml-auto text-xs text-gray-400">2:23 / 95 BPM</span>
-                </div>
-                <div className="h-8 w-full flex items-center gap-0.5 opacity-60">
-                  <div className="w-1 h-3 bg-white rounded-full"></div>
-                  <div className="w-1 h-5 bg-white rounded-full"></div>
-                  <div className="w-1 h-8 bg-white rounded-full"></div>
-                  <div className="w-1 h-4 bg-white rounded-full"></div>
-                  <div className="w-1 h-6 bg-white rounded-full"></div>
-                  <div className="w-1 h-2 bg-white rounded-full"></div>
-                  <div className="w-1 h-5 bg-white rounded-full"></div>
-                  <div className="w-1 h-3 bg-white rounded-full"></div>
-                  <div className="w-1 h-6 bg-white rounded-full"></div>
-                  <div className="w-1 h-3 bg-white rounded-full"></div>
-                  <div className="w-1 h-5 bg-white rounded-full"></div>
-                  <div className="w-1 h-8 bg-white rounded-full"></div>
-                  <div className="w-1 h-4 bg-white rounded-full"></div>
-                  <div className="w-1 h-6 bg-white rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            <div onClick={() => navigate('/details')} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in">
-              <img alt="Winter couple" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfQn5M42VHX95Ti814el9vTrz2GprLpV0IxTxdZcdCdKaGHkeuaMe8TiM43jIRhcIPW7Od4EOhmqBkkAxAotyOZ0TqSEeZ6YtauEB4lJ9ZfNpH5sZiGgI_X4T7bEKw5EgmCQiZ_4gwB_A-ej0RNpOE5ddW6UpO7zoZpUvGc1I23sUJylzr0uRBZ8r708F5rFhQUtte8ceyxGFzKqscfx2IWMEM5043-GHHnyReC1KOayTf_Maea2oTyN15bXs_L76RQeKxarXAx78" />
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-3">
-                <div className="text-white text-xs font-medium">Add to collection</div>
-                <div className="flex gap-2">
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">favorite</span></button>
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">download</span></button>
-                </div>
-              </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-pointer">
-              <img alt="Office building" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8jmqU3X8w7E0G5ON3O3FlNuKnSsObT01JfmW5P0ItKJRCq4nmbqCtTZ8e47IScKy7N3f8DW9BESk6QZvgak1DXfJOt6XzrlqaTBTwnt_724cx0CPoQP5tdGb-bz_ms6Zbx4cqRzk-SNVUo8UYrFO3wxZ8DIwR3ywxs5vuvAc7GGer7Ic7QX3XmTvRxfgcX575BreE_dhWMAqq5wCW0BF23Wv-xmWEDXwLvhf6b46ad9HdzIdY2y3bGPeRfrQ-DASMU-9RMMxM5-A" />
-              <div className="absolute top-2 left-2 bg-black/60 px-1.5 py-0.5 rounded text-[10px] font-bold text-white uppercase flex items-center gap-1">
-                <span className="material-icons-outlined text-[10px]">videocam</span> 4K
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/20">
-                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full"><span className="material-icons-outlined text-white text-3xl">play_arrow</span></div>
-              </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in">
-              <img alt="Snow mountains" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKNzlscd9BhlR2-iA-62wSGfJj4T6Dz1n7JW2_8r_OEv0pNbmWhwYVo5TZ3CC3LXG4UJ93lAT1HYgLlK8AAbYwDg5J7WoOl8t7nv783HAw8umwB9bRVHAEYYgaJcod1a3ntMjocbNnosdUOdXxINPVVHAe0mq0ZOIrd9dwd3pA5AvjXrREfSEzOX3xgowWeMK29D0Tw03eDJgN4t-EtNQwmyw9Tt38_E22fjfXARJytO7eeMSBIb1gjmH5YMnZss-vkifZL811U0" />
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-3">
-                <div className="text-white text-xs font-medium">Add to collection</div>
-                <div className="flex gap-2">
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">favorite</span></button>
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">download</span></button>
-                </div>
-              </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden bg-gray-800 text-white relative group cursor-pointer">
-              <div className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-gray-600 rounded-full p-2"><span className="material-icons-outlined text-white">play_arrow</span></div>
-                  <div>
-                    <h4 className="text-sm font-bold">Tech Flow</h4>
-                    <p className="text-xs text-gray-400">By Titan Sound</p>
+                ) : (
+                  <img alt={asset.title} className="w-full object-cover" src={`http://localhost:5001${asset.fileUrl}`} />
+                )}
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-4 mix-blend-multiply"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-4">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded font-medium uppercase tracking-wider backdrop-blur-sm">{asset.type}</span>
                   </div>
-                  <span className="ml-auto text-xs text-gray-400">2:21</span>
-                </div>
-                <div className="h-8 w-full flex items-center gap-0.5 opacity-60">
-                  <div className="w-1 h-3 bg-white rounded-full"></div>
-                  <div className="w-1 h-5 bg-white rounded-full"></div>
-                  <div className="w-1 h-8 bg-white rounded-full"></div>
-                  <div className="w-1 h-4 bg-white rounded-full"></div>
-                  <div className="w-1 h-6 bg-white rounded-full"></div>
-                  <div className="w-1 h-2 bg-white rounded-full"></div>
+                  <div className="flex justify-between items-end">
+                    <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
+                    <div className="flex gap-2">
+                      <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">favorite</span></button>
+                      <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in">
-              <img alt="Food minimalism" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJAkfWvaQlt6581l7BB4VT9q5YUGldqrsR9gotck6RMV46lhavlr2w4oSWmT8eNMl1ej70mQoWWqtAHhWn-tqMyfXVJ_dnP0pfIKwj6dsLSSOhf2M5EJ81zOEOAN8G5FZjTHMuOP2KNaiSWc8ii_g2RJT-G7Aadv8-p_mKreTCsEtBRWjqxonpo4besE5tcoR-VZMyQ6d8qrt1HL__6lJR3zvWdQVcVf88pW4_LM1Utcu4__9dIm114c9mrp1bYpYbVyeObaAd4Tk" />
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-3">
-                <div className="text-white text-xs font-medium">Add to collection</div>
-                <div className="flex gap-2">
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">favorite</span></button>
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">download</span></button>
-                </div>
-              </div>
-            </div>
-            <div className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in">
-              <img alt="Skiing" className="w-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRHu9fXY6Ouxk6YvADG6jzUGXCfIohbSEQZprvLVI6ISMWqmiAEBrgsT296RZ7yErDSioD1SU7hHQ3TH-YhG4D8ZxL620Gdsmwnc-cuRU_tIRNgH06uJy7EEJ0CJwjle3jtI01Wba159-394ZY7I0KhpdwIrb1Vqt8Ql5qxG37pxCVuqhaR6d3TBrb9DuvRQvTvMxNvGbnKp1DZndrvYBmt-g-fegvO-_SYsQZ9coe1geN0lPyTd0fVUd3quw9LMHQPPBuxJw1U8Y" />
-              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-3">
-                <div className="text-white text-xs font-medium">Add to collection</div>
-                <div className="flex gap-2">
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">favorite</span></button>
-                  <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800"><span className="material-icons-outlined text-sm">download</span></button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="text-center mt-8">
             <button onClick={() => navigate('/search')} className="px-8 py-3 rounded-full border border-gray-300 dark:border-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition dark:text-gray-300">See more images</button>
