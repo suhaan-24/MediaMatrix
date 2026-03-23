@@ -15,8 +15,13 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.1",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^13.0.0"
   },
-  "keywords": ["mediamatrix", "dam", "digital-asset-management"],
+  "keywords": [
+    "mediamatrix",
+    "dam",
+    "digital-asset-management"
+  ],
   "license": "MIT"
 }

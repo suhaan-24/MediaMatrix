@@ -1,6 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login({ onClose }) {
+    const { login, register } = useAuth();
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        let result;
+        if (isSignUp) {
+            result = await register(name, email, password);
+        } else {
+            result = await login(email, password);
+        }
+
+        if (result.success) {
+            onClose();
+        } else {
+            setError(result.message);
+        }
+        setLoading(false);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-left">
             <div className="bg-background-light dark:bg-background-dark w-full max-w-[1200px] h-auto md:h-[800px] flex flex-col md:flex-row rounded-xl shadow-2xl overflow-hidden relative">
@@ -22,66 +51,64 @@ export default function Login({ onClose }) {
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col p-8 md:p-12 overflow-y-auto">
                     <div className="max-w-md w-full mx-auto flex flex-col flex-grow justify-center">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-10 text-center">Login or Signup</h2>
-                        <form className="space-y-5">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                            {isSignUp ? 'Create an Account' : 'Log in to your account'}
+                        </h2>
+                        
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
+                                {error}
+                            </div>
+                        )}
+
+                        <form className="space-y-4" onSubmit={handleSubmit}>
+                            {isSignUp && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" htmlFor="name">Full Name</label>
+                                    <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:text-white placeholder-gray-400" id="name" type="text" placeholder="John Doe" />
+                                </div>
+                            )}
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" htmlFor="email">Email or username</label>
-                                <input className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:text-white placeholder-gray-400" id="email" name="email" placeholder="Email or username" type="text" />
+                                <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" htmlFor="email">Email</label>
+                                <input value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:text-white placeholder-gray-400" id="email" type="email" placeholder="Email address" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" htmlFor="password">Password</label>
                                 <div className="relative">
-                                    <input className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:text-white placeholder-gray-400" id="password" name="password" placeholder="Password" type="password" />
-                                    <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" type="button">
-                                        <span className="material-icons text-xl">visibility_off</span>
-                                    </button>
+                                    <input value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all dark:bg-gray-800 dark:text-white placeholder-gray-400" id="password" type="password" placeholder="Password (min 6 chars)" />
                                 </div>
                             </div>
-                            <div>
-                                <a className="text-sm font-medium text-gray-900 dark:text-white underline decoration-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="#">
-                                    Forgot your password?
-                                </a>
-                            </div>
-                            <button onClick={onClose} className="w-full bg-primary hover:bg-black text-white font-bold py-3.5 rounded-lg transition-colors duration-200 dark:border dark:border-gray-700" type="button">
-                                Log in
+                            
+                            {!isSignUp && (
+                                <div>
+                                    <a className="text-sm font-medium text-gray-900 dark:text-white underline decoration-1 hover:text-blue-600 transition-colors" href="#">
+                                        Forgot your password?
+                                    </a>
+                                </div>
+                            )}
+
+                            <button disabled={loading} className="w-full bg-primary hover:bg-black text-white font-bold py-3.5 rounded-lg transition-colors duration-200 disabled:opacity-50" type="submit">
+                                {loading ? 'Processing...' : (isSignUp ? 'Sign up' : 'Log in')}
                             </button>
                         </form>
-                        <div className="space-y-3 mt-4">
-                            <button className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-3" type="button">
-                                Log in with SSO
-                            </button>
-                            <button className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-3" type="button">
-                                <img alt="Google logo" className="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp9yXI7Tij5e4dTyuMzppLS2S2eLcy6aiydH6miQXDl8YrJREEFY5i4r7xkyHGtcHF-h0yI1HFRraHKe9xVeo5L6ke0herKQJ64vfbAahHhazEpw_dgBbkDRDO9UQ1mE4_0C7DYB_K6-1oJ3tTw_pEsYR_dCXui3jMZG-RjMLs3UTYXiFpfWHYFSABv3fwREsI8GWOO6uWjLfjjiov_9zhcH6BOV625hM-EP_66EWdA1AWdqGqP9j6rI61bgJZOxz8RVttYV79e2Q" />
-                                Continue with Google
-                            </button>
-                            <button className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-3" type="button">
-                                <img alt="Facebook logo" className="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUW2x8sq2SEPLbo1YIvqwhDE9aOUtv6LGaT3WIxt9QVLLon_puIknM4efB21WtaEa84hWPC_MiZeq6JFtrwpeBOF0yncNszKPmycNzcXfBLr8TQYdCfgLW_WWu7IiehlkBH6gl7DM5avdhIjZQu_V_46QjPHwZtcQ0z98EN0kREwF2d2VZsY6ijaUTvHyGd7d3HLgXrRJY6id07GNup1anqQ-mmzwNrKlhjuZh-K95so7QKnGXUsmJRJTQvpnGBt8rKTGpsJr7mZE" />
-                                Continue with Facebook
-                            </button>
-                            <button className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-semibold py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-3" type="button">
-                                <svg className="w-5 h-5 text-black dark:text-white fill-current" viewBox="0 0 24 24">
-                                    <path d="M17.5,12.5c-.2,0-.5-.1-.7-.3l-5.3-5.3-.9.9c.7.7,1.8,1.8,2.7,2.7.5.5.5,1.3,0,1.8l-5.3,5.3c-.2.2-.5.3-.7.3s-.5-.1-.7-.3c-.4-.4-.4-1,0-1.4l4.6-4.6-4.6-4.6c-.4-.4-.4-1,0-1.4s1-.4,1.4,0l5.3,5.3c.2.2.3.5.3.7s-.1.5-.3.7c-.5.5-1.1,1.1-1.6,1.6-.2.2-.5.2-.7,0s-.2-.5,0-.7c.9-.9,1.8-1.8,2.7-2.7l.9.9-5.3,5.3c-.2.2-.3.5-.3.7s.1.5.3.7c.4.4,1,.4,1.4,0l5.3-5.3c.2-.2.3-.5.3-.7s-.1-.5-.3-.7Zm-2.3-3.9c-.3,0-.7.1-.9.4-.9.9-1.5,2.1-1.7,3.3-.1.6.3,1.1.9,1.2.6.1,1.1-.3,1.2-.9.1-.8.6-1.6,1.2-2.2.4-.4.4-1.1,0-1.5-.2-.2-.5-.3-.7-.3Z"></path>
-                                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24.02-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.78.79.05 1.97-.67 3.28-.61 1.4.06 2.53.63 3.2 1.61-2.84 1.76-2.4 5.34.45 6.51-.21.84-.66 2.05-1.46 3.19-.57.82-1.25 1.61-2.05 1.49zM15.33 4.88c-.14 1.58-1.29 2.91-2.45 2.87-1.3-.04-2.52-1.55-2.26-3.13.25-1.46 1.64-2.95 2.76-2.92 1.15.03 2.1 1.59 1.95 3.18z"></path>
-                                </svg>
-                                Continue with Apple
-                            </button>
-                        </div>
+                        
                         <div className="flex items-center my-6">
                             <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
                             <span className="flex-shrink-0 mx-4 text-gray-500 text-sm">or</span>
                             <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
                         </div>
-                        <div className="text-left space-y-3">
-                            <p className="text-gray-600 dark:text-gray-400">Don't have a free account yet?</p>
-                            <button onClick={() => { onClose(); /* Handle navigation to signup / subscription if desired */ }} className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold py-3.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" type="button">
-                                Create your account
+
+                        <div className="text-center space-y-3">
+                            <p className="text-gray-600 dark:text-gray-400">
+                                {isSignUp ? 'Already have an account?' : "Don't have an account yet?"}
+                            </p>
+                            <button onClick={() => { setIsSignUp(!isSignUp); setError(''); }} className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold py-3.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" type="button">
+                                {isSignUp ? 'Log in instead' : 'Create your account'}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-
         </div>
     );
 }

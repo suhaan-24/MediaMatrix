@@ -1,6 +1,12 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; export default function Home({ onLoginClick }) {
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import UploadModal from '../components/UploadModal';
+
+export default function Home({ onLoginClick }) {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   return (
     <div className="w-full h-full min-h-screen bg-white">
@@ -18,7 +24,17 @@ import { Link, useNavigate } from 'react-router-dom'; export default function Ho
             <div className="flex items-center space-x-6 text-sm">
               <button className="hover:text-primary transition"><span className="material-icons-outlined text-xl">favorite_border</span></button>
               <button className="hover:text-primary transition"><span className="material-icons-outlined text-xl">shopping_cart</span></button>
-              <button onClick={onLoginClick} className="px-4 py-1.5 border border-gray-600 rounded text-xs hover:border-gray-400 transition font-medium">Log in</button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-gray-300 font-medium hidden sm:block">Hi, {user.name}</span>
+                  <button onClick={() => setIsUploadOpen(true)} className="px-4 py-1.5 bg-primary hover:bg-primary-hover border border-primary text-white rounded text-xs transition font-bold flex items-center gap-1">
+                    <span className="material-icons text-sm">cloud_upload</span> Upload
+                  </button>
+                  <button onClick={logout} className="px-4 py-1.5 border border-gray-600 rounded text-xs hover:border-gray-400 transition font-medium">Log out</button>
+                </div>
+              ) : (
+                <button onClick={onLoginClick} className="px-4 py-1.5 border border-gray-600 rounded text-xs hover:border-gray-400 transition font-medium">Log in</button>
+              )}
             </div>
           </div>
           <div className="hidden md:flex space-x-8 pb-3 text-xs text-gray-400 font-medium">
@@ -553,7 +569,7 @@ import { Link, useNavigate } from 'react-router-dom'; export default function Ho
         </div>
       </footer>
 
-
+      {isUploadOpen && <UploadModal onClose={() => setIsUploadOpen(false)} />}
     </div>
   );
 }
