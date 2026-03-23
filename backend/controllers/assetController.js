@@ -9,7 +9,7 @@ export const uploadAsset = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please upload a file' });
     }
 
-    const { title, description, tags, type } = req.body;
+    const { title, description, tags, type, folderId } = req.body;
 
     // Determine type if not provided explicitly
     let assetType = type;
@@ -38,6 +38,7 @@ export const uploadAsset = async (req, res) => {
       size: req.file.size,
       tags: parsedTags,
       uploader: req.user.id,
+      folderId: folderId || null,
     });
 
     res.status(201).json({
@@ -55,11 +56,12 @@ export const uploadAsset = async (req, res) => {
 // @access  Public
 export const getAssets = async (req, res) => {
   try {
-    const { type, tag, search } = req.query;
+    const { type, tag, search, folderId } = req.query;
     let query = {};
 
     if (type) query.type = type;
     if (tag) query.tags = tag;
+    if (folderId) query.folderId = folderId;
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },

@@ -8,6 +8,7 @@ import healthRouter from './routes/health.js';
 import authRoutes from './routes/authRoutes.js';
 import assetRoutes from './routes/assetRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
+import folderRoutes from './routes/folderRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,6 +31,7 @@ app.use('/api/health', healthRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/folders', folderRoutes);
 
 // --------------- Start Server ---------------
 app.listen(config.port, () => {
