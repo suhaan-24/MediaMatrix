@@ -69,6 +69,12 @@ web_modules/
 .env
 .env.*
 !.env.example
+frontend/.env
+backend/.env
+
+# Local Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

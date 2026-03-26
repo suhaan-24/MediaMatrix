@@ -4,7 +4,7 @@
 | Name | Role | GitHub |
 |---|---|---|
 | Suhaan Raqeeb Khavas | Backend, Auth, ElasticSearch | @suhaan-24 |
-| Abhay Goudannavar | Frontend, Database Design, Firebase | @abhay-username |
+| Abhay Goudannavar | Frontend, Database Design, Firebase | @abhaygoudannavar |
 
 ---
 

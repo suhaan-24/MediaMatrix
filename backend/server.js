@@ -2,13 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import config from './config/index.js';
-import connectDB from './config/db.js';
-import healthRouter from './routes/health.js';
-import authRoutes from './routes/authRoutes.js';
-import assetRoutes from './routes/assetRoutes.js';
-import searchRoutes from './routes/searchRoutes.js';
-import folderRoutes from './routes/folderRoutes.js';
+import config from './src/config/index.js';
+import connectDB from './src/config/db.js';
+import healthRouter from './src/routes/health.js';
+import authRoutes from './src/routes/authRoutes.js';
+import assetRoutes from './src/routes/assetRoutes.js';
+import searchRoutes from './src/routes/searchRoutes.js';
+import folderRoutes from './src/routes/folderRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,7 +19,7 @@ connectDB();
 const app = express();
 
 // --------------- Middleware ---------------
-app.use(cors({ origin: config.clientUrl, credentials: true }));
+app.use(cors({ origin: [config.clientUrl, 'http://localhost:5175'], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

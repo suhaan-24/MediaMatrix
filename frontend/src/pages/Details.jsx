@@ -1,65 +1,103 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; export default function Details() {
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { API_URL, BACKEND_URL } from '../config';
+import Navbar from '../components/Navbar';
+import { useToast } from '../context/ToastContext';
+
+export default function Details({ onLoginClick }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { id } = useParams();
+  const [asset, setAsset] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAsset = async () => {
+      try {
+        setLoading(true);
+        if (id.startsWith('picsum-')) {
+          const picId = id.split('-')[1];
+          const res = await fetch(`https://picsum.photos/id/${picId}/info`);
+          const data = await res.json();
+          setAsset({
+            _id: id,
+            title: `Photo by ${data.author}`,
+            description: `A beautiful high-resolution photo by ${data.author} sourced from Unsplash APIs.`,
+            type: 'image',
+            fileUrl: data.download_url,
+            uploader: { name: data.author }
+          });
+        } else if (id.startsWith('itunes-')) {
+          const trackId = id.split('-')[1];
+          const res = await fetch(`https://itunes.apple.com/lookup?id=${trackId}`);
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            const track = data.results[0];
+            setAsset({
+              _id: id,
+              title: `${track.trackName} - ${track.artistName}`,
+              description: `A preview track from the album ${track.collectionName} by ${track.artistName}.`,
+              type: 'audio',
+              fileUrl: track.previewUrl,
+              thumbnailUrl: track.artworkUrl100,
+              uploader: { name: track.artistName }
+            });
+          }
+        } else {
+          // Local Mongo DB
+          const res = await fetch(`${API_URL}/assets/${id}`);
+          const data = await res.json();
+          if (data.success) {
+            setAsset(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch asset details", err);
+        showToast('Failed to load asset details.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchAsset();
+  }, [id]);
+
+  if (loading) return <div className="w-full h-screen bg-white flex items-center justify-center font-bold text-gray-500">Loading details...</div>;
+  if (!asset) return <div className="w-full h-screen bg-white flex items-center justify-center font-bold text-gray-500">Asset not found.</div>;
 
   return (
     <div className="w-full h-full min-h-screen bg-white">
 
-      <nav className="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark sticky top-0 z-50">
-        <div className="bg-black text-white text-xs py-2 text-center font-medium">
-          Get 10 royalty-free image downloads each month with a cost-saving subscription. <a className="underline text-white ml-2" href="#">Buy now</a>
-        </div>
-        <div className="px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-bold text-primary tracking-tighter flex items-center gap-1">
-              <span className="material-icons-outlined text-3xl">shutter_speed</span> shutterstock
-            </Link>
-            <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-text-main-light dark:text-text-main-dark">
-              <a className="hover:text-primary transition" href="#">Images</a>
-              <a className="hover:text-primary transition" href="#">Video</a>
-              <a className="hover:text-primary transition" href="#">Music</a>
-              <a className="hover:text-primary transition" href="#">Editorial</a>
-              <a className="hover:text-primary transition" href="#">3D</a>
-            </div>
-          </div>
-          <div className="flex-1 max-w-xl mx-8 hidden md:block">
-            <div className="relative">
-              <input className="w-full h-10 pl-4 pr-10 rounded-full border border-gray-300 dark:border-gray-600 bg-surface-light dark:bg-surface-dark text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Search for images, videos, music..." type="text" />
-              <button className="absolute right-2 top-1.5 text-text-muted-light dark:text-text-muted-dark hover:text-primary">
-                <span className="material-icons-outlined text-xl">search</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-sm font-medium">
-            <button className="flex items-center gap-1 text-text-muted-light dark:text-text-muted-dark hover:text-primary">
-              <span className="material-icons-outlined">favorite_border</span>
-            </button>
-            <button className="flex items-center gap-1 text-text-muted-light dark:text-text-muted-dark hover:text-primary">
-              <span className="material-icons-outlined">shopping_cart</span>
-            </button>
-            <Link to="/login" className="border border-text-main-light dark:border-gray-500 rounded px-4 py-1.5 hover:bg-surface-light dark:hover:bg-surface-dark transition">Log in</Link>
-            <Link to="/subscription" className="bg-primary text-white rounded px-4 py-1.5 hover:bg-red-700 transition">Sign up</Link>
-          </div>
-        </div>
-      </nav>
+      <div className="sticky top-0 z-50 shadow-md">
+        <Navbar onLoginClick={onLoginClick} />
+      </div>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 text-sm text-text-muted-light dark:text-text-muted-dark">
           <div className="flex items-center gap-2">
             <Link to="/" className="hover:underline">Home</Link>
             <span>/</span>
-            <Link to="/search" className="hover:underline">Photos</Link>
+            <Link to="/search" className="hover:underline">Search</Link>
             <span>/</span>
-            <a className="hover:underline" href="#">Nature</a>
+            <span className="capitalize">{asset.type}</span>
             <span>/</span>
-            <span className="text-text-main-light dark:text-text-white truncate max-w-xs">Aerial view of autumn forest landscape</span>
+            <span className="text-text-main-light dark:text-text-white truncate max-w-xs">{asset.title}</span>
           </div>
-          <div className="mt-2 sm:mt-0 font-mono text-xs">ID: 194827365</div>
+          <div className="mt-2 sm:mt-0 font-mono text-xs">ID: {asset._id.slice(-8)}</div>
         </div>
         <div className="flex flex-col lg:flex-row gap-8">
-          <div className="lg:w-2/3">
+          <div className="w-full lg:w-2/3 min-w-0">
             <div className="bg-surface-light dark:bg-surface-dark rounded-lg p-2 sm:p-4 border border-border-light dark:border-border-dark flex items-center justify-center min-h-[500px] relative group overflow-hidden">
-              <img alt="Aerial view of autumn forest with vibrant orange and red trees along a winding river" className="max-h-[700px] w-auto h-auto object-contain rounded shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPGHXqKPnLaM0Wr9xzP7OGr_VpkFkoj18q6QpxogHZNzTqSGNPXE5-iqMBJMcyHCLsgtjPr0cnVZXXWMnn-tHKHxLrTTPd9o1f1jUyPApTRW41fP9_SXDvksFW6MZa6QDYdHkJ31Tc5mvFf__-lwvpTgAgcQ8Y08pZIfrudqp7cD2RvKeBVxMgZO1-4L7rOf5iN0yvcyiQkvsQZYlKD6643rybDPjkA-gs2dCUUKRSGPXwGB6jrTdbsFGEoH1GYRRKL9y-B39YZwY" />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 select-none">
+              {asset.type && (asset.type.includes('audio') || asset.type.includes('music')) ? (
+                <div className="flex flex-col items-center justify-center w-full min-h-[500px] bg-gray-900 rounded relative">
+                   {asset.thumbnailUrl && <img src={asset.thumbnailUrl.replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm mix-blend-screen" alt="thumb"/>}
+                   <span className="material-icons-outlined text-white text-8xl mb-6 z-10 drop-shadow-lg">music_note</span>
+                   {asset.fileUrl && asset.fileUrl.startsWith('http') && (
+                     <audio controls src={asset.fileUrl} className="w-3/4 z-10 opacity-90 shadow-2xl"></audio>
+                   )}
+                </div>
+              ) : (
+                <img alt={asset.title} className="max-h-[700px] w-auto h-auto object-contain rounded shadow-sm relative z-10" loading="lazy" src={asset.fileUrl.startsWith('http') ? asset.fileUrl : `${BACKEND_URL}${asset.fileUrl}`} onError={(e) => { e.target.src='https://placehold.co/600x400/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 select-none z-20">
                 <div className="grid grid-cols-3 gap-12 rotate-[-15deg]">
                   <span className="text-4xl font-bold text-white/50">shutterstock</span>
                   <span className="text-4xl font-bold text-white/50">shutterstock</span>
@@ -78,10 +116,10 @@ import { Link, useNavigate } from 'react-router-dom'; export default function De
             <div className="mt-6 flex items-center justify-between border-b border-border-light dark:border-border-dark pb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                  A
+                  {asset.uploader?.name?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-text-main-light dark:text-text-main-dark">AzureSkies Media</h3>
+                  <h3 className="font-semibold text-text-main-light dark:text-text-main-dark">{asset.uploader?.name || 'Unknown User'}</h3>
                   <button className="text-primary text-sm font-medium hover:underline">Follow</button>
                 </div>
               </div>
@@ -93,13 +131,13 @@ import { Link, useNavigate } from 'react-router-dom'; export default function De
               </div>
             </div>
             <div className="py-6">
-              <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark mb-2">Aerial view of autumn forest landscape with winding river</h1>
+              <h1 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark mb-2">{asset.title}</h1>
               <p className="text-text-muted-light dark:text-text-muted-dark leading-relaxed">
-                Stunning drone shot capturing the vibrant colors of fall foliage in a dense forest, with a serene river curving through the landscape. High resolution nature photography suitable for backgrounds and editorial use.
+                {asset.description || 'No description available for this asset.'}
               </p>
             </div>
           </div>
-          <div className="lg:w-1/3">
+          <div className="w-full lg:w-1/3 min-w-0">
             <div className="sticky top-24 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark">Purchase this image</h2>
@@ -152,7 +190,7 @@ import { Link, useNavigate } from 'react-router-dom'; export default function De
                 </label>
               </div>
               <div className="space-y-3">
-                <button onClick={() => navigate('/login')} className="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-sm transition flex items-center justify-center gap-2">
+                <button onClick={() => { if (asset.fileUrl?.startsWith('http')) { window.open(asset.fileUrl, '_blank'); } showToast('Download started!', 'success'); }} className="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-sm transition flex items-center justify-center gap-2">
                   <span className="material-icons-outlined text-lg">download</span>
                   Download for $79
                 </button>

@@ -1,28 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import UploadModal from '../components/UploadModal';
+import { API_URL, BACKEND_URL } from '../config';
+import Navbar from '../components/Navbar';
+import { useToast } from '../context/ToastContext';
 
 export default function Home({ onLoginClick }) {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [assets, setAssets] = useState([]);
+  const [favourites, setFavourites] = useState(new Set());
+  const imageInputRef = useRef(null);
+
+  const handleSearchByImage = () => {
+    imageInputRef.current?.click();
+  };
+  const handleImageFileSelected = () => {
+    showToast('Visual search is coming soon!', 'info');
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  };
+  const toggleFavourite = (id, e) => {
+    e.stopPropagation();
+    setFavourites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); showToast('Removed from favourites', 'info'); }
+      else { next.add(id); showToast('Added to favourites!', 'success'); }
+      return next;
+    });
+  };
+  const handleComingSoon = (feature) => (e) => {
+    e.preventDefault();
+    showToast(`${feature} — coming soon!`, 'info');
+  };
 
   // Fetch from Search API or master Asset API
   const fetchAssets = async () => {
     try {
+      // 1. Fetch from Local Database
       const url = searchQuery 
-        ? `http://localhost:5001/api/search?q=${encodeURIComponent(searchQuery)}`
-        : `http://localhost:5001/api/assets`;
+        ? `${API_URL}/search?q=${encodeURIComponent(searchQuery)}`
+        : `${API_URL}/assets?limit=12`;
       const res = await fetch(url);
       const data = await res.json();
-      if (data.success) {
-        setAssets(data.data);
-      }
+      let dbAssets = data.success ? data.data : [];
+
+      // Only use real backend assets and filter out broken URLs natively
+      const combined = [...dbAssets].filter(a => a?.fileUrl && a.fileUrl.trim() !== '');
+      setAssets(combined);
     } catch (err) {
       console.error("Failed to fetch assets", err);
+      showToast('Failed to load assets. Please try again.', 'error');
     }
   };
 
@@ -36,42 +63,10 @@ export default function Home({ onLoginClick }) {
       <div className="bg-primary text-white text-xs py-2 text-center font-medium">
         Get 10 royalty-free image downloads each month with a cost-saving subscription. <a className="underline ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase hover:bg-gray-100" href="#">Buy now</a>
       </div>
-      <nav className="bg-background-dark text-white border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex-shrink-0 flex items-center space-x-2 cursor-pointer">
-              <span className="material-icons-outlined text-primary text-3xl">shutter_speed</span>
-              <span className="font-bold text-xl tracking-tight">ShutterStock</span>
-            </div>
-            <div className="flex items-center space-x-6 text-sm">
-              <button className="hover:text-primary transition"><span className="material-icons-outlined text-xl">favorite_border</span></button>
-              <button className="hover:text-primary transition"><span className="material-icons-outlined text-xl">shopping_cart</span></button>
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-300 font-medium hidden sm:block">Hi, {user.name}</span>
-                  <button onClick={() => setIsUploadOpen(true)} className="px-4 py-1.5 bg-primary hover:bg-primary-hover border border-primary text-white rounded text-xs transition font-bold flex items-center gap-1">
-                    <span className="material-icons text-sm">cloud_upload</span> Upload
-                  </button>
-                  <button onClick={logout} className="px-4 py-1.5 border border-gray-600 rounded text-xs hover:border-gray-400 transition font-medium">Log out</button>
-                </div>
-              ) : (
-                <button onClick={onLoginClick} className="px-4 py-1.5 border border-gray-600 rounded text-xs hover:border-gray-400 transition font-medium">Log in</button>
-              )}
-            </div>
-          </div>
-          <div className="hidden md:flex space-x-8 pb-3 text-xs text-gray-400 font-medium">
-            <a className="hover:text-white flex items-center gap-1" href="#">Images <span className="material-icons-outlined text-[14px]">expand_more</span></a>
-            <a className="hover:text-white flex items-center gap-1" href="#">Video <span className="material-icons-outlined text-[14px]">expand_more</span></a>
-            <a className="hover:text-white flex items-center gap-1" href="#">Music <span className="material-icons-outlined text-[14px]">expand_more</span></a>
-            <a className="hover:text-white flex items-center gap-1" href="#">Editorial <span className="material-icons-outlined text-[14px]">expand_more</span></a>
-            <a className="hover:text-white flex items-center gap-1" href="#">3D <span className="material-icons-outlined text-[14px]">expand_more</span></a>
-            <a className="text-primary hover:text-red-400 flex items-center gap-1" href="#">AI Generator <span className="bg-primary/20 text-primary px-1 rounded text-[9px] border border-primary/30">NEW</span></a>
-          </div>
-        </div>
-      </nav>
+      <Navbar onLoginClick={onLoginClick} />
       <header className="relative bg-black overflow-hidden h-[500px] flex items-center justify-center">
         <div className="absolute inset-0 opacity-60">
-          <img alt="Abstract gradient background" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEkzsiD7bvkwsa2dRtvXnSwkQt0h6sJEeTlTvZ0j03z8JvzGCtR_yUUVcsaFdbmDB4Ha3SIG9qCXAuZtk1p4_qsPzWtPyRAkDzPpH8tp9L7FulraNE_354-EsfFaZgjBGvLsxlf9f5Jd1mc48dlSrC-Md4ZBGM9ohhLF2pTL6B0f6Ze4u7BblJhTRaiS2EhZG2oHTz0rJB6aaFuVrekapV7vXN5z3sb4gLeGEHzwtF5zm5fIYxIgPbYQUcq8VzhJvr9B2Eg5pYPXE" />
+          <img alt="Abstract gradient background" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEkzsiD7bvkwsa2dRtvXnSwkQt0h6sJEeTlTvZ0j03z8JvzGCtR_yUUVcsaFdbmDB4Ha3SIG9qCXAuZtk1p4_qsPzWtPyRAkDzPpH8tp9L7FulraNE_354-EsfFaZgjBGvLsxlf9f5Jd1mc48dlSrC-Md4ZBGM9ohhLF2pTL6B0f6Ze4u7BblJhTRaiS2EhZG2oHTz0rJB6aaFuVrekapV7vXN5z3sb4gLeGEHzwtF5zm5fIYxIgPbYQUcq8VzhJvr9B2Eg5pYPXE" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80"></div>
         </div>
         <div className="relative z-10 w-full max-w-5xl px-4 text-center">
@@ -87,21 +82,23 @@ export default function Home({ onLoginClick }) {
             <button className="px-4 text-gray-600 border-r border-gray-200 h-full flex items-center gap-1 text-sm font-medium hover:bg-gray-50 bg-gray-50">
               All images <span className="material-icons-outlined text-sm">expand_more</span>
             </button>
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && fetchAssets()} className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
-            <button className="px-4 text-gray-500 hover:text-gray-800 border-l border-gray-100 h-full flex items-center gap-1 text-xs">
+            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && navigate(`/search?q=${encodeURIComponent(searchQuery)}`)} className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
+            <button onClick={handleSearchByImage} aria-label="Search by image" className="px-4 text-gray-500 hover:text-gray-800 border-l border-gray-100 h-full flex items-center gap-1 text-xs">
               <span className="material-icons-outlined">image_search</span> Search by image
             </button>
-            <button onClick={fetchAssets} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition">
+            <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFileSelected} />
+            <button onClick={() => navigate(`/search?q=${encodeURIComponent(searchQuery)}`)} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition">
               <span className="material-icons-outlined">search</span>
             </button>
           </div>
           <div className="mt-4 text-xs text-gray-400 flex justify-center gap-2">
             <span className="font-semibold text-gray-300">Trending:</span>
-            <a className="hover:text-white underline" href="#">spring flowers</a>,
-            <a className="hover:text-white underline" href="#">business meeting</a>,
-            <a className="hover:text-white underline" href="#">abstract background</a>,
-            <a className="hover:text-white underline" href="#">AI technology</a>
+            <a className="hover:text-white underline" href="#" onClick={(e) => { e.preventDefault(); navigate('/search?q=spring+flowers'); }}>spring flowers</a>,
+            <a className="hover:text-white underline" href="#" onClick={(e) => { e.preventDefault(); navigate('/search?q=business+meeting'); }}>business meeting</a>,
+            <a className="hover:text-white underline" href="#" onClick={(e) => { e.preventDefault(); navigate('/search?q=abstract+background'); }}>abstract background</a>,
+            <a className="hover:text-white underline" href="#" onClick={(e) => { e.preventDefault(); navigate('/search?q=AI+technology'); }}>AI technology</a>
           </div>
+          <button onClick={() => navigate('/search')} className="mt-6 px-8 py-3 bg-primary hover:bg-primary-hover text-white font-bold rounded-full text-sm transition shadow-lg shadow-red-200/30">Start exploring</button>
         </div>
       </header>
       <section className="py-12 bg-surface-light dark:bg-surface-dark">
@@ -110,7 +107,7 @@ export default function Home({ onLoginClick }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link to="/search" className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Premium Content" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJlsobH-yKrQcgXOCgCOciSRPzcL2HwQpmEBQMEyggtIqfMXYwJAvsPek25997mzoFHgPbLDQ8iMXBFOqHJXs30KSLeDHlPSD_2cw1lZZdLx-duLyBce4pa9mvT_S-QEeH-KtoHUBl0oWjoBo11vLDijpbueMMnUhQRol3Dy4AQLv3VyFqAyJn40jG4M3ce_2aKmx0HHEvbn1oQUhnQ57GOG5hlVgClV828z7wz2-V-bp7yza7Ac7bsuQhXeOfPgzso_DyxSMhuu8" />
+                <img alt="Premium Content" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJlsobH-yKrQcgXOCgCOciSRPzcL2HwQpmEBQMEyggtIqfMXYwJAvsPek25997mzoFHgPbLDQ8iMXBFOqHJXs30KSLeDHlPSD_2cw1lZZdLx-duLyBce4pa9mvT_S-QEeH-KtoHUBl0oWjoBo11vLDijpbueMMnUhQRol3Dy4AQLv3VyFqAyJn40jG4M3ce_2aKmx0HHEvbn1oQUhnQ57GOG5hlVgClV828z7wz2-V-bp7yza7Ac7bsuQhXeOfPgzso_DyxSMhuu8" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Premium Content</h3>
@@ -119,7 +116,7 @@ export default function Home({ onLoginClick }) {
             </Link>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Custom Production" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZbkf-Y8CYVCWLF9PABk2wUDWbIUeaLITO3MIg71TZiJeSYSCMUAQg-nzuRLvn9O0bazCF_AsduYJ8XTM175Med0gf_7AoX9FwL7my9dvCmfpRkH8aIRM4ov1zKGyo85e-fp00ldwH8jjCOnfYoEefPjC0cLND3vUZtRVW36tEAGvD4XgP4OfLHbANXjvogCnSiFDSYJ-k6No3FFoBQVciDDZzd6FU0lP2z9PYJfS9l91sSLYlS2xjGP77-Hym2DZS0UGwCVBpOV8" />
+                <img alt="Custom Production" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZbkf-Y8CYVCWLF9PABk2wUDWbIUeaLITO3MIg71TZiJeSYSCMUAQg-nzuRLvn9O0bazCF_AsduYJ8XTM175Med0gf_7AoX9FwL7my9dvCmfpRkH8aIRM4ov1zKGyo85e-fp00ldwH8jjCOnfYoEefPjC0cLND3vUZtRVW36tEAGvD4XgP4OfLHbANXjvogCnSiFDSYJ-k6No3FFoBQVciDDZzd6FU0lP2z9PYJfS9l91sSLYlS2xjGP77-Hym2DZS0UGwCVBpOV8" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Custom Production</h3>
@@ -128,7 +125,7 @@ export default function Home({ onLoginClick }) {
             </a>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Generative AI" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMwqNWu7YJbI9XeSUp5u58OkJtlAaL2IUCh3ix1q_r4v42UsiPSZncreqb2_5r99Tx5nqU9olXdUwxOzf-CWTyruVJqtnAnW7DSERGFlkrbzJTaaiFagvBRWVOC_o17a38NHI8OPukidS0XT_mTGgqO_tfOWaegvZsX_zpAdlUdp_O96vXq05jHNz2Wy8hF92SzyzXR_a92lfR1XCAN2tkaWGMelUG879qfGQemBpU_6d-D-0gvXCotzhniWvhZScfXacc8FcU1W4" />
+                <img alt="Generative AI" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMwqNWu7YJbI9XeSUp5u58OkJtlAaL2IUCh3ix1q_r4v42UsiPSZncreqb2_5r99Tx5nqU9olXdUwxOzf-CWTyruVJqtnAnW7DSERGFlkrbzJTaaiFagvBRWVOC_o17a38NHI8OPukidS0XT_mTGgqO_tfOWaegvZsX_zpAdlUdp_O96vXq05jHNz2Wy8hF92SzyzXR_a92lfR1XCAN2tkaWGMelUG879qfGQemBpU_6d-D-0gvXCotzhniWvhZScfXacc8FcU1W4" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Generative AI</h3>
@@ -137,7 +134,7 @@ export default function Home({ onLoginClick }) {
             </a>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Rights-Cleared" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjoW0H8_Neboj7slLupNts6mYgrcyUyIZw7_i0bVIFjC8-daMRlOWhz5BHDiGGEJJb5I9RF_aAd4EdxPOyrUO26IfXL0WBoNoiC9duwUqpYq6hQ-izH0ycnCKAByOfl-985VQ6qET7ykVbaODv3HFcBJ2uPtx8-M6Aqs2UEv2VyIZMZPBvbwqnEaLFLuIu5He0qGUKQhDZA2gEoJ370_EvkySssjuJglQBaZK9E_KqNxGFNE6c-bqNvA3fBmI0rt9-0rMb93CaKEE" />
+                <img alt="Rights-Cleared" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjoW0H8_Neboj7slLupNts6mYgrcyUyIZw7_i0bVIFjC8-daMRlOWhz5BHDiGGEJJb5I9RF_aAd4EdxPOyrUO26IfXL0WBoNoiC9duwUqpYq6hQ-izH0ycnCKAByOfl-985VQ6qET7ykVbaODv3HFcBJ2uPtx8-M6Aqs2UEv2VyIZMZPBvbwqnEaLFLuIu5He0qGUKQhDZA2gEoJ370_EvkySssjuJglQBaZK9E_KqNxGFNE6c-bqNvA3fBmI0rt9-0rMb93CaKEE" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Rights-Cleared Datasets</h3>
@@ -218,12 +215,16 @@ export default function Home({ onLoginClick }) {
             {assets.map((asset) => (
               <div key={asset._id} onClick={() => navigate(`/details/${asset._id}`)} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in shadow-sm hover:shadow-lg transition bg-gray-100 dark:bg-gray-800">
                 {asset.type && (asset.type.includes('video') || asset.type.includes('audio')) ? (
-                  <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500">
-                    <span className="material-icons-outlined text-5xl mb-3">{asset.type.includes('video') ? 'videocam' : 'music_note'}</span>
-                    <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate w-full text-center px-4">{asset.title}</span>
+                  <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500 relative bg-gray-900 border border-gray-800">
+                    {asset.thumbnailUrl && <img src={asset.thumbnailUrl.replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-sm mix-blend-screen" alt="thumb"/>}
+                    <span className="material-icons-outlined text-5xl mb-3 z-10 text-white drop-shadow-lg">{asset.type.includes('video') ? 'videocam' : 'music_note'}</span>
+                    <span className="text-sm font-bold text-gray-200 truncate w-full text-center px-4 z-10 drop-shadow-md">{asset.title}</span>
+                    {asset.type.includes('audio') && asset.fileUrl && asset.fileUrl.startsWith('http') && (
+                      <audio controls src={asset.fileUrl} className="mt-4 w-full h-8 z-10 opacity-80" onClick={(e) => e.stopPropagation()}></audio>
+                    )}
                   </div>
                 ) : (
-                  <img alt={asset.title} className="w-full object-cover" src={`http://localhost:5001${asset.fileUrl}`} />
+                  <img alt={asset.title} className="w-full object-cover" src={asset.fileUrl.startsWith('http') ? asset.fileUrl : `${BACKEND_URL}${asset.fileUrl}`} />
                 )}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-4 mix-blend-multiply"></div>
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-4">
@@ -233,8 +234,8 @@ export default function Home({ onLoginClick }) {
                   <div className="flex justify-between items-end">
                     <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
                     <div className="flex gap-2">
-                      <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">favorite</span></button>
-                      <button className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
+                      <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset._id, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
+                      <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (asset.fileUrl?.startsWith('http')) { window.open(asset.fileUrl, '_blank'); } showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
                     </div>
                   </div>
                 </div>
@@ -252,49 +253,49 @@ export default function Home({ onLoginClick }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-red-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAacTHqUBEXj1btuSFANYxQQV3NpcqomAAoHq1rsKZ5v1lWH62pnVFsbDrSJGy2Zg_ln2-b-X09gxGoNXGcYDr4FzVUFFeJhI4eAB3NDdqqnuhje2qZRNqhuMZ01oTiDOE_Vfv3heOLzWSuS-pugpCICwiU1Pts8pF271poG1a0ALz4OZjTGrKo5UrpxlxUC2ztXO-cZnZywTSVoFnAyicWC_LC_S7ll3W928hRQUQuAWmc-UbXTS_TdMxITNVQmI7Okr7w64KaxIA" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAacTHqUBEXj1btuSFANYxQQV3NpcqomAAoHq1rsKZ5v1lWH62pnVFsbDrSJGy2Zg_ln2-b-X09gxGoNXGcYDr4FzVUFFeJhI4eAB3NDdqqnuhje2qZRNqhuMZ01oTiDOE_Vfv3heOLzWSuS-pugpCICwiU1Pts8pF271poG1a0ALz4OZjTGrKo5UrpxlxUC2ztXO-cZnZywTSVoFnAyicWC_LC_S7ll3W928hRQUQuAWmc-UbXTS_TdMxITNVQmI7Okr7w64KaxIA" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Images</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-blue-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfz1M0kMTUEPaskYnvwsUbeZq3-0piVPLouolVeO-ZYbdereYnX0lPuXpVqjrFZYVvfRxYDlpb5qQyRym12zRwnpRk3S7YkIDKi0hu-NYOutlm-mF8phB1OeFWFQgiKfBR8qTEbGLLwtsiRJrFqR6cn5LpqEox0XI3kNDTzAOemBsvOhFzUHakcgQYsz1WG_j8u5JJNEhFTZIJurCK7937lYV4Fl4lbi4Fg-8w5sEk4c9Pn1eeQYkv2LbnP3Uk9vW9ndw1lqrDaXI" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfz1M0kMTUEPaskYnvwsUbeZq3-0piVPLouolVeO-ZYbdereYnX0lPuXpVqjrFZYVvfRxYDlpb5qQyRym12zRwnpRk3S7YkIDKi0hu-NYOutlm-mF8phB1OeFWFQgiKfBR8qTEbGLLwtsiRJrFqR6cn5LpqEox0XI3kNDTzAOemBsvOhFzUHakcgQYsz1WG_j8u5JJNEhFTZIJurCK7937lYV4Fl4lbi4Fg-8w5sEk4c9Pn1eeQYkv2LbnP3Uk9vW9ndw1lqrDaXI" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Video</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-yellow-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN4o2DrNDMdR_xWd1PgUGH6DK_4kcM0EpOMEoGe7PyX5xoI_extz5Ob8YAKB-L4rbPvAeiOeBbBaL3z-5vkwnfv3WrLIHv8X4v1tKLRuHGs2AsTFWZG6nIPi0JewOHlI5U-pN4HOep-gHofy8_iKIlS6l3Pvn7C1x_FegHjYrQDw7sqV44LrTFb3QRpDx7KKlNNdMeyW7UG8KMGh2wfoz_1PRMvIgnkrX-2VjZv2m50wWodIrXxc6ruk7SJBv_Km-sBL53AGsbDxU" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN4o2DrNDMdR_xWd1PgUGH6DK_4kcM0EpOMEoGe7PyX5xoI_extz5Ob8YAKB-L4rbPvAeiOeBbBaL3z-5vkwnfv3WrLIHv8X4v1tKLRuHGs2AsTFWZG6nIPi0JewOHlI5U-pN4HOep-gHofy8_iKIlS6l3Pvn7C1x_FegHjYrQDw7sqV44LrTFb3QRpDx7KKlNNdMeyW7UG8KMGh2wfoz_1PRMvIgnkrX-2VjZv2m50wWodIrXxc6ruk7SJBv_Km-sBL53AGsbDxU" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Music</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-purple-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOes13fFZt-NAknD0_WhEQwpsjUgPv1Qtiq-YaQHAmYQAEngJIIV16CY7sQSKmyVUqM3iT7uBWWmxz4YrlnpdPIAgmk8P0mBwQY-4B-8x9Bh5pXU-MaaK3r6_FPs-bolqBZMINztGaOH6pSPElwaeTFH74ZPSl2q_5GatdzPkHCjhEiSDNODf2kjCT__6S4yY3DvJaNsg8C6orNKGdMVMUM_wWActu1p64vV9TmKnVAOt83h34RT5oClm6GOiJisVXLsjOz8XRPBQ" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOes13fFZt-NAknD0_WhEQwpsjUgPv1Qtiq-YaQHAmYQAEngJIIV16CY7sQSKmyVUqM3iT7uBWWmxz4YrlnpdPIAgmk8P0mBwQY-4B-8x9Bh5pXU-MaaK3r6_FPs-bolqBZMINztGaOH6pSPElwaeTFH74ZPSl2q_5GatdzPkHCjhEiSDNODf2kjCT__6S4yY3DvJaNsg8C6orNKGdMVMUM_wWActu1p64vV9TmKnVAOt83h34RT5oClm6GOiJisVXLsjOz8XRPBQ" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Sound effects</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-green-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNShsLKeMBtpI9VZavBwtKlrfaUb_XMPRYERHOw1bttToWUvdVZGzY8QdVilwQH3N-9QUD0JljAgngCy-Uywt2n3IzCZ2Yz_9ELeTe8cqpPZCuFR98UBtDMicxe0WpIN8QuJUi-_bnmha48g9k_QjZcXqvHNO6-WlHf1Uizg4i-T_Jw55iwATOtGfyvXUlOnMiLOeG5dY8fsw3O6dFw_8bjT6oWQj5E0YA-78Q_WSx5EyVi3ak9ZWfh_Pa8NlHaYEztOtcdWadGws" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNShsLKeMBtpI9VZavBwtKlrfaUb_XMPRYERHOw1bttToWUvdVZGzY8QdVilwQH3N-9QUD0JljAgngCy-Uywt2n3IzCZ2Yz_9ELeTe8cqpPZCuFR98UBtDMicxe0WpIN8QuJUi-_bnmha48g9k_QjZcXqvHNO6-WlHf1Uizg4i-T_Jw55iwATOtGfyvXUlOnMiLOeG5dY8fsw3O6dFw_8bjT6oWQj5E0YA-78Q_WSx5EyVi3ak9ZWfh_Pa8NlHaYEztOtcdWadGws" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">AI Image Generator</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-indigo-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgrJ1tLaLO3haNtp8FpFIleFsTywWlXPZC7oQSH9C6tm9B_HIuyFm2DbZmObVJ4nufzKaXulYhiI7_D_BxSmCfA0eTSK-rXyCxNaKkFuk4WlqrLlXnP43atGQjID-2mp2MkVQhwxoSU56-ukVhPgCKdaJVh-ORScpRiXeibNRQDb69hWjvqJ_qpPBBMVedu9DxY8Bkn65oAuDHofaNqKx7RwpC1ziKmQZ6dg6rdntJxtjRJ1FbjXduGlGAsBw_dodKLoN0xshUSjo" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgrJ1tLaLO3haNtp8FpFIleFsTywWlXPZC7oQSH9C6tm9B_HIuyFm2DbZmObVJ4nufzKaXulYhiI7_D_BxSmCfA0eTSK-rXyCxNaKkFuk4WlqrLlXnP43atGQjID-2mp2MkVQhwxoSU56-ukVhPgCKdaJVh-ORScpRiXeibNRQDb69hWjvqJ_qpPBBMVedu9DxY8Bkn65oAuDHofaNqKx7RwpC1ziKmQZ6dg6rdntJxtjRJ1FbjXduGlGAsBw_dodKLoN0xshUSjo" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Vectors</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-pink-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUgbIPH0xnYIyyVleTl_zqfWoA4MDyw0ExB_Dbl9OoiTKjBj-_Snlpq2b9zyNPcIF1VDvsQBcNo-cewdQ7NrABXwuhXhFcYmTEsaDDW7jxCrcg_Lscy1LgwPrtodlzft9CvWA6QEsRbK2bgnlSiqDUEX_kfk764NF_mlvH8C8BGhBSSdtYmBM1Cx4Z20Yg2Q8kAIXUqoyj_iwEAhvs2T6tdxl9fxkFaCeWcPFeN_rPKXXIem6Y9KUAfoxOedSlWAkAIHBEEla5kds" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUgbIPH0xnYIyyVleTl_zqfWoA4MDyw0ExB_Dbl9OoiTKjBj-_Snlpq2b9zyNPcIF1VDvsQBcNo-cewdQ7NrABXwuhXhFcYmTEsaDDW7jxCrcg_Lscy1LgwPrtodlzft9CvWA6QEsRbK2bgnlSiqDUEX_kfk764NF_mlvH8C8BGhBSSdtYmBM1Cx4Z20Yg2Q8kAIXUqoyj_iwEAhvs2T6tdxl9fxkFaCeWcPFeN_rPKXXIem6Y9KUAfoxOedSlWAkAIHBEEla5kds" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Photos</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-orange-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_zA-pbtGobidwY4_5jY5rEyX4RfAi81JuoxGD5pH9OSAjuKiE-uaL__I7Kt_Lp4BZsMuACVK2JGQqs_Q64Lxi-mJJv9Xfk7NARuKHr8o5ssNlv-aYWFAt6yFn7AnO7lw_rhEmTYwKVCLJOlG5exC4MsUUe-y_55Mrg37CviwtHw09rcEL__ij9u-l3MlweBMVe2gsV11AAnRk3hBwmpYQHhnjM90Y84X3BaEF2Nqdr9xDZrCXFxl3s_OA_A1nJVQNNIweeyESXX4" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_zA-pbtGobidwY4_5jY5rEyX4RfAi81JuoxGD5pH9OSAjuKiE-uaL__I7Kt_Lp4BZsMuACVK2JGQqs_Q64Lxi-mJJv9Xfk7NARuKHr8o5ssNlv-aYWFAt6yFn7AnO7lw_rhEmTYwKVCLJOlG5exC4MsUUe-y_55Mrg37CviwtHw09rcEL__ij9u-l3MlweBMVe2gsV11AAnRk3hBwmpYQHhnjM90Y84X3BaEF2Nqdr9xDZrCXFxl3s_OA_A1nJVQNNIweeyESXX4" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Templates</span>
             </a>
@@ -361,7 +362,7 @@ export default function Home({ onLoginClick }) {
           <h2 className="text-2xl font-bold mb-8 dark:text-white">Creative and Marketing Guidance</h2>
           <div className="bg-white dark:bg-background-dark rounded-xl overflow-hidden shadow-sm mb-8 flex flex-col md:flex-row">
             <div className="md:w-1/2 h-64 md:h-auto">
-              <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA6iPkm1fBSynb1STpyeZ9SfrU9StlxB2n0d3z1ssyc71p1dIXS1hfDGn8mD2P8EjhkPrb3frnrDskqiAWJOWsOXaUDebRFgdjCgQ8h9a-RxaxXk98Gnkc-WhirAqWuhu4ZyA67BtIg73u0bpkFl0fUkcvk7s78imbLxyi7KSxDHuznwRqahQ4F3QW5tkekaV8nJ5G9X06WkNhu9Km_Im9uOLaL-0KIk7BwX84HHE3prBd5hTwEm6mLhEtDs8VOlB2xraaC8qeAU8" />
+              <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA6iPkm1fBSynb1STpyeZ9SfrU9StlxB2n0d3z1ssyc71p1dIXS1hfDGn8mD2P8EjhkPrb3frnrDskqiAWJOWsOXaUDebRFgdjCgQ8h9a-RxaxXk98Gnkc-WhirAqWuhu4ZyA67BtIg73u0bpkFl0fUkcvk7s78imbLxyi7KSxDHuznwRqahQ4F3QW5tkekaV8nJ5G9X06WkNhu9Km_Im9uOLaL-0KIk7BwX84HHE3prBd5hTwEm6mLhEtDs8VOlB2xraaC8qeAU8" />
             </div>
             <div className="md:w-1/2 p-8 flex flex-col justify-center">
               <h3 className="text-lg font-bold mb-2 dark:text-white">In The Wild: TurboSquid x House of Kardashian</h3>
@@ -406,7 +407,7 @@ export default function Home({ onLoginClick }) {
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHJsf6kj-RoIDZZQ4-mCKyqKpKGHoqLK0bqdDHQD5hpNHAiRn3FPA9aGZIYkkP4Ns7VSRWHpITe3ew-BV9XWTodJr0gfMV9V0zzNDmKh-I3DyASNLrlmK8IVGEgwDZBH5NIM-9i79wBteAxRcQnvany_yu-TMIUotNW-5dZhaLqtAXGYHj1w3SEXcbV-LhUf0KSHO9iR5Hern0deM9PPOxUft4riaEY-tdfcSjcuPDFQztRpbW-HGmBggPqvyr5LU1Q6gY5NuTJbE" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHJsf6kj-RoIDZZQ4-mCKyqKpKGHoqLK0bqdDHQD5hpNHAiRn3FPA9aGZIYkkP4Ns7VSRWHpITe3ew-BV9XWTodJr0gfMV9V0zzNDmKh-I3DyASNLrlmK8IVGEgwDZBH5NIM-9i79wBteAxRcQnvany_yu-TMIUotNW-5dZhaLqtAXGYHj1w3SEXcbV-LhUf0KSHO9iR5Hern0deM9PPOxUft4riaEY-tdfcSjcuPDFQztRpbW-HGmBggPqvyr5LU1Q6gY5NuTJbE" />
               </div>
               <h4 className="font-bold text-sm dark:text-white">Free stock image of the week</h4>
               <p className="text-xs text-gray-500 mb-2">By Shift Drive</p>
@@ -414,7 +415,7 @@ export default function Home({ onLoginClick }) {
             </div>
             <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
-                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKxwV8OI8bV_1d3Y-viOcResbllz-hJVx8PYwVvAg41wPAEy4a-txWnz26VtjLeZhHlafwWlt_VzWgnMimNNoFCaXy7hu1QGumaYGKPLe-iJ6OwgsCa98jEHGCJqMpYDo2KXd8s88Awb4tFjEZ4k3m-4c0iJQGKTLxP31YUpSiJ2Z976gr_ztIZjgm_kwAB2ZXCw5noQC22O6rWk4YGtZSM8gR3LwYC45OXtlwSoCm1b5ebfQrnudtBgsY9eX15dt1l80SR2Er-rE" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKxwV8OI8bV_1d3Y-viOcResbllz-hJVx8PYwVvAg41wPAEy4a-txWnz26VtjLeZhHlafwWlt_VzWgnMimNNoFCaXy7hu1QGumaYGKPLe-iJ6OwgsCa98jEHGCJqMpYDo2KXd8s88Awb4tFjEZ4k3m-4c0iJQGKTLxP31YUpSiJ2Z976gr_ztIZjgm_kwAB2ZXCw5noQC22O6rWk4YGtZSM8gR3LwYC45OXtlwSoCm1b5ebfQrnudtBgsY9eX15dt1l80SR2Er-rE" />
               </div>
               <h4 className="font-bold text-sm dark:text-white">Free stock vector of the week</h4>
               <p className="text-xs text-gray-500 mb-2">By Azurhino</p>
@@ -441,11 +442,11 @@ export default function Home({ onLoginClick }) {
             <div>
               <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-[10px]">Our company</h4>
               <ul className="space-y-2">
-                <li><a className="hover:text-white transition" href="#">About us</a></li>
-                <li><a className="hover:text-white transition" href="#">Careers</a></li>
-                <li><a className="hover:text-white transition" href="#">Press/Media</a></li>
-                <li><a className="hover:text-white transition" href="#">Investor relations</a></li>
-                <li><a className="hover:text-white transition" href="#">Shutterstock blog</a></li>
+                <li><a onClick={handleComingSoon('About us')} className="hover:text-white transition cursor-pointer">About us</a></li>
+                <li><a onClick={handleComingSoon('Careers')} className="hover:text-white transition cursor-pointer">Careers</a></li>
+                <li><a onClick={handleComingSoon('Press/Media')} className="hover:text-white transition cursor-pointer">Press/Media</a></li>
+                <li><a onClick={handleComingSoon('Investor relations')} className="hover:text-white transition cursor-pointer">Investor relations</a></li>
+                <li><a onClick={handleComingSoon('Shutterstock blog')} className="hover:text-white transition cursor-pointer">Shutterstock blog</a></li>
               </ul>
               <h4 className="font-bold text-white mt-6 mb-4 uppercase tracking-wider text-[10px]">Partner</h4>
               <ul className="space-y-2">
@@ -509,7 +510,6 @@ export default function Home({ onLoginClick }) {
         </div>
       </footer>
 
-      {isUploadOpen && <UploadModal onClose={() => setIsUploadOpen(false)} />}
     </div>
   );
 }

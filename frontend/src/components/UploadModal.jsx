@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-
+import { API_URL } from '../config';
 export default function UploadModal({ onClose }) {
     const { token } = useAuth();
     const [file, setFile] = useState(null);
@@ -29,7 +29,7 @@ export default function UploadModal({ onClose }) {
         formData.append('tags', tags); // backend parses comma separated
 
         try {
-            const res = await axios.post('http://localhost:5001/api/assets', formData, {
+            const res = await axios.post(`${API_URL}/assets`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`

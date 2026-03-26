@@ -1,28 +1,19 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 
-const AuthContext = createContext();
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // Set default axios base URL
-  const api = axios.create({
-    baseURL: 'http://localhost:5001/api',
-  });
 
-  // Attach token to requests if exists
-  api.interceptors.request.use(
-    (config) => {
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -31,7 +22,9 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       try {
-        const { data } = await api.get('/auth/me');
+        const { data } = await axios.get(`${API_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (data.success) setUser(data.user);
       } catch (error) {
         console.error('Failed to fetch user:', error);
@@ -45,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await api.post('/auth/login', { email, password });
+      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
       if (data.success) {
         setToken(data.token);
         localStorage.setItem('token', data.token);
@@ -59,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const { data } = await api.post('/auth/register', { name, email, password });
+      const { data } = await axios.post(`${API_URL}/auth/register`, { name, email, password });
       if (data.success) {
         setToken(data.token);
         localStorage.setItem('token', data.token);

@@ -1,58 +1,118 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom'; export default function Search() {
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { API_URL, BACKEND_URL } from '../config';
+import Navbar from '../components/Navbar';
+import { useToast } from '../context/ToastContext';
+
+export default function Search({ onLoginClick }) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [favourites, setFavourites] = useState(new Set());
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [picPage, setPicPage] = useState(1);
+  const [dbPage, setDbPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const debounceRef = useRef(null);
+
+  const toggleFavourite = (id, e) => {
+    e.stopPropagation();
+    setFavourites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); showToast('Removed from favourites', 'info'); }
+      else { next.add(id); showToast('Added to favourites!', 'success'); }
+      return next;
+    });
+  };
+
+  const performSearch = async (queryToSearch) => {
+    setLoading(true);
+    try {
+      const url = queryToSearch 
+        ? `${API_URL}/search?q=${encodeURIComponent(queryToSearch)}`
+        : `${API_URL}/assets?limit=24`;
+      const res = await fetch(url);
+      const data = await res.json();
+      let dbAssets = data.success ? data.data : [];
+
+      const combined = [...dbAssets].filter(a => a?.fileUrl && a.fileUrl.trim() !== '');
+      setAssets(combined);
+    } catch (err) {
+      console.error("Failed to fetch assets", err);
+      showToast('Failed to load assets. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    
+    debounceRef.current = setTimeout(() => {
+      setSearchParams(val ? { q: val } : {});
+    }, 500);
+  };
+
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextDbPage = dbPage + 1;
+      const res = await fetch(`${API_URL}/assets?page=${nextDbPage}&limit=24`);
+      const dbData = await res.json();
+      
+      let moreAssets = [];
+      if (dbData.success && dbData.data) {
+        moreAssets = dbData.data.filter(a => a?.fileUrl && a.fileUrl.trim() !== '');
+      }
+
+      if (moreAssets.length > 0) {
+        setAssets(prev => [...prev, ...moreAssets]);
+        setDbPage(nextDbPage);
+      } else {
+        showToast('No more assets to load.', 'info');
+      }
+    } catch (err) {
+      showToast('Failed to load more assets.', 'error');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const filteredAssets = typeFilter === 'all' ? assets : assets.filter(a => {
+    if (typeFilter === 'image') return a.type === 'image';
+    if (typeFilter === 'audio') return a.type?.includes('audio') || a.type?.includes('music');
+    if (typeFilter === 'video') return a.type?.includes('video');
+    return true;
+  });
+
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearchQuery(q);
+    performSearch(q);
+  }, [searchParams]);
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter') {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <div className="w-full h-full min-h-screen bg-white">
 
-      <header className="sticky top-0 z-50 bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-primary font-bold text-2xl tracking-tighter">shutter<span className="text-text-main-light dark:text-white">stock</span></span>
-            </Link>
-            <nav className="hidden md:flex gap-6 text-sm font-medium text-text-sub-light dark:text-text-sub-dark">
-              <a className="hover:text-primary transition-colors" href="#">Images</a>
-              <a className="hover:text-primary transition-colors" href="#">Video</a>
-              <a className="hover:text-primary transition-colors" href="#">Music</a>
-              <a className="hover:text-primary transition-colors" href="#">Editorial</a>
-              <a className="hover:text-primary transition-colors" href="#">AI Generator</a>
-            </nav>
-          </div>
-          <div className="flex-1 max-w-2xl hidden md:flex">
-            <div className="relative w-full group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="material-icons text-text-sub-light dark:text-text-sub-dark text-xl">search</span>
-              </div>
-              <input className="block w-full pl-10 pr-3 py-2.5 border border-border-light dark:border-border-dark rounded-full leading-5 bg-surface-light dark:bg-surface-dark placeholder-text-sub-light dark:placeholder-text-sub-dark focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all shadow-sm" placeholder="Search for images, vectors, videos..." type="text" />
-              <button className="absolute inset-y-0 right-0 pr-1 flex items-center">
-                <span className="bg-primary text-white p-1.5 rounded-full mr-1 hover:bg-red-600 transition-colors">
-                  <span className="material-icons text-sm">arrow_forward</span>
-                </span>
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary">
-              <span className="material-icons">favorite_border</span>
-            </button>
-            <button className="text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary">
-              <span className="material-icons">shopping_cart</span>
-            </button>
-            <Link to="/login" className="text-sm font-medium px-4 py-2 border border-border-light dark:border-border-dark rounded-full hover:bg-surface-light dark:hover:bg-surface-dark transition-colors">
-              Log in
-            </Link>
-            <Link to="/subscription" className="text-sm font-medium px-4 py-2 bg-primary text-white rounded-full hover:bg-red-600 shadow-md transition-colors">
-              Sign up
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar onLoginClick={onLoginClick} />
       <div className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark py-3">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-text-main-light dark:text-text-main-dark">"Winter Landscape"</h1>
-            <span className="text-sm text-text-sub-light dark:text-text-sub-dark">342,891 results</span>
+            <h1 className="text-lg font-semibold text-text-main-light dark:text-text-main-dark">{searchParams.get('q') ? `"${searchParams.get('q')}"` : "All Assets"}</h1>
+            <span className="text-sm text-text-sub-light dark:text-text-sub-dark">{assets.length} results</span>
           </div>
           <div className="flex items-center gap-3 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark bg-white dark:bg-surface-dark transition-colors whitespace-nowrap">
@@ -77,26 +137,12 @@ import { Link, useNavigate } from 'react-router-dom'; export default function Se
               <span className="material-icons text-text-sub-light text-base">expand_less</span>
             </h3>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input checked="" className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="checkbox" />
-                <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">All Images</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="checkbox" />
-                <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">Photos</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="checkbox" />
-                <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">Vectors</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="checkbox" />
-                <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">Illustrations</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="checkbox" />
-                <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">3D Objects</span>
-              </label>
+              {[{val:'all',label:'All Images'},{val:'image',label:'Photos'},{val:'audio',label:'Music / Audio'},{val:'video',label:'Video'}].map(f => (
+                <label key={f.val} className="flex items-center gap-2 cursor-pointer group">
+                  <input checked={typeFilter === f.val} onChange={() => setTypeFilter(f.val)} className="rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark" type="radio" name="typeFilter" />
+                  <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark transition-colors">{f.label}</span>
+                </label>
+              ))}
             </div>
           </div>
           <div className="mb-6 border-b border-border-light dark:border-border-dark pb-4">
@@ -191,7 +237,7 @@ import { Link, useNavigate } from 'react-router-dom'; export default function Se
             </label>
           </div>
         </aside>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex gap-2 overflow-x-auto pb-4 mb-2 custom-scrollbar">
             <a className="px-4 py-2 bg-surface-light dark:bg-surface-dark hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full text-sm font-medium text-text-sub-light dark:text-text-sub-dark whitespace-nowrap transition-colors" href="#">Snowy Forest</a>
             <a className="px-4 py-2 bg-surface-light dark:bg-surface-dark hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full text-sm font-medium text-text-sub-light dark:text-text-sub-dark whitespace-nowrap transition-colors" href="#">Ice Mountains</a>
@@ -202,209 +248,52 @@ import { Link, useNavigate } from 'react-router-dom'; export default function Se
             <a className="px-4 py-2 bg-surface-light dark:bg-surface-dark hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full text-sm font-medium text-text-sub-light dark:text-text-sub-dark whitespace-nowrap transition-colors" href="#">Snowflake Macro</a>
           </div>
           <div className="masonry-grid">
-            <div onClick={() => navigate('/details')} className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer">
-              <img alt="Dogs running in snow" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf_x-E-SegDSJGvvURd4Tfmc3Zh-rA9gNomBZhUdbEpC8xQFr2Db9Yxd0AQeZKxwgnQfA5nSKPZ-2Ry5w4FThdwN5eFXykr28UiFPa-eauOIkf0E0JY3Sy0wr9Dj8cuB-rvi2UN7lolBGO5ivxUZ0OrELw0YGUEZ7Zzlmoi5adgmVf11vAKu_s7oU1HnKzb1iJ0SpfqSo9bsxecwxtMIQ7zYVr-zJcyzYzZVtvNKWaB3xGwI1RUtKnFdVpoAX_w5v73F9vQoH_kk0" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors" title="Save to collection">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors" title="Add to cart">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
+            {loading ? (
+              <>{[...Array(8)].map((_, i) => <div key={i} className="break-inside-avoid mb-6 skeleton" style={{ height: `${180 + (i % 3) * 60}px` }} />)}</>
+            ) : filteredAssets.length === 0 ? (
+              <div className="p-12 text-center text-gray-500 w-full col-span-full flex flex-col items-center gap-3">
+                <span className="material-icons-outlined text-6xl text-gray-300">image_not_supported</span>
+                <p className="text-lg font-semibold">No results found</p>
+                <p className="text-sm">Try a different keyword or adjust your filters.</p>
+              </div>
+            ) : filteredAssets.map((asset) => (
+              <div key={asset._id} onClick={() => navigate(`/details/${asset._id}`)} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in shadow-sm hover:shadow-lg transition bg-gray-100 dark:bg-gray-800">
+                {/* MM-13: Always-visible media type badge */}
+                <div className="absolute top-2 left-2 z-20">
+                  <span className="bg-black/70 text-white text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider backdrop-blur-sm">{asset.type?.includes('audio') ? 'Audio' : asset.type?.includes('video') ? 'Video' : 'Image'}</span>
                 </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Dogs Running Snow</p>
-                    <p className="opacity-80 font-normal">By PetPhotog</p>
+                {asset.type && (asset.type.includes('video') || asset.type.includes('audio')) ? (
+                  <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500 relative bg-gray-900 border border-gray-800">
+                    {asset.thumbnailUrl && <img src={asset.thumbnailUrl.replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-sm mix-blend-screen" alt="thumb" loading="lazy" />}
+                    <span className="material-icons-outlined text-5xl mb-3 z-10 text-white drop-shadow-lg">{asset.type.includes('video') ? 'videocam' : 'music_note'}</span>
+                    <span className="text-sm font-bold text-gray-200 truncate w-full text-center px-4 z-10 drop-shadow-md">{asset.title}</span>
+                    {asset.type.includes('audio') && asset.fileUrl && asset.fileUrl.startsWith('http') && (
+                      <audio controls src={asset.fileUrl} className="mt-4 w-full h-8 z-10 opacity-80" onClick={(e) => e.stopPropagation()}></audio>
+                    )}
                   </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-              <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm">
-                <span className="material-icons text-[10px] align-middle mr-0.5">photo_camera</span> Photo
-              </div>
-            </div>
-            <div onClick={() => navigate('/details')} className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer">
-              <img alt="Winter mountains landscape" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf8l7iJrfQwJmx4w7harKIQN8KAhxo8hxwV5vTVX0DoFKo0IF3hEquyfzweqp_n9fNEeDdQgqvtKKYj9Ixe0p0kH5KP1YuYXU4PH8JGA1Q9drVWv-ERZh2Bz16cuN2AXgS9tz1UYKhxbXy2LMuT9RKkyjAZsMPqTGFFCfKlnsp60MtSOtr5Q4cm1P_tsxZXwZpTt5TbfIlutRO0uulY-7p3OKGO3yBE8Za5oEEi0SESaIeG9MW9ok9diru7USIlZZgVpSKEaFWzjE" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Snowy Mountain Peak</p>
-                    <p className="opacity-80 font-normal">By NatureRaw</p>
+                ) : (
+                  <img alt={asset.title} className="w-full object-cover" loading="lazy" src={asset.fileUrl?.startsWith('http') ? asset.fileUrl : `${BACKEND_URL}${asset.fileUrl}`} onError={(e) => { e.target.src='https://placehold.co/400x300/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
+                )}
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-4 mix-blend-multiply"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-4">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded font-medium uppercase tracking-wider backdrop-blur-sm">{asset.type}</span>
                   </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div onClick={() => navigate('/details')} className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer">
-              <img alt="Skiing downhill" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9_dl6V3gQbcqT0MWKWjVmTcgWOYYlfd7fw6UTaCZiiqEhTkywo59Ev2XFc240zmXWiZQxWEJe7z_E_q_HkX5wd0kNkKgMUCdtDGcvxPYmAXwGUCAYVlQlPzsYH7VPAVt-UUEPncFJoBOAl04iCeBhdWRsUHamAipvnT1mObmHxFAMjZlriZyNzcaV-7VR8JWy6L89_fP_XQf1REl3fjib6wcEYj9L9dfcl-QaCtGphxinh3vzfYDYp4mbEywYJB0gMRDMBObhvcg" />
-              <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm flex items-center">
-                <span className="material-icons text-[10px] align-middle mr-0.5">videocam</span> 4K
-              </div>
-              <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm">
-                00:15
-              </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <button className="bg-white/20 backdrop-blur-sm p-4 rounded-full hover:bg-white/30 transition-colors">
-                  <span className="material-icons text-white text-4xl">play_arrow</span>
-                </button>
-                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[60%] drop-shadow-md">
-                    <p>Skier Downhill Fast</p>
-                    <p className="opacity-80 font-normal">By ActionCam</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-lg shadow-sm transition-colors">
-                      <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">favorite_border</span>
-                    </button>
-                    <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-lg shadow-sm transition-colors">
-                      <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">add_shopping_cart</span>
-                    </button>
+                  <div className="flex justify-between items-end">
+                    <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
+                    <div className="flex gap-2">
+                       <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset._id, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
+                       <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (asset.fileUrl?.startsWith('http')) { window.open(asset.fileUrl, '_blank'); } showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div onClick={() => navigate('/details')} className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer">
-              <img alt="Woman drinking coffee in winter" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzt_QCBngrxMnnX5XBIbl16Ww0A1eLGk1QiRngqAnGv-oaXvFzDt12maRH_9Zrg-V5-OKEQJojWuoCa0JpQXEFdaa0TtClF0R_V6GBysng3kL-w_l7dBRzs-LmBrvDRq_9fbCjL_j5EfdvCMh9tpUfHN0ZUsJFOGW0iuHEIFYZTIEXH03ux-Hm2DP6yc-nMlcKBXLZvSE9F0b4OPAb7WKztSRL_GpNqWU9zeixJxMnjxfnNt8i2i5PrYJxKa8fckgIf9ZhiB03Dx0" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Winter Coffee Cozy</p>
-                    <p className="opacity-80 font-normal">By LifestylePix</p>
-                  </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-              <img alt="Abstract ice texture" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCydS25P_qcHdYGyUuqADjH1YfiMQ7g4R9JZXF_3tDpRKjJ4dbCcs-Uf4E6uDTGbwDl0BZ92Nr87cgfHrBHGDpccDP1bbcxjUJfTbsKwottUjkHBBIeH58Qa9c8lcza_1rukT8d8lsVDE1F6yCq29GxvKG2mcikja2rMctfmRNoCP-rZ0E7_ZZQbcyQ3UhRj2cYj1K7UpJPSIES-jPvNNUsp0hZDYI-KgJ0K1-ZnBiGPz6VSE0GeNlxGxRa5v6_nEBohZab6qoANCc" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Ice Texture Blue</p>
-                    <p className="opacity-80 font-normal">By TextureLabs</p>
-                  </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-              <img alt="Snowy pine trees from above" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOhnQNMMYKbyU0JLlQ1RUv3wV_S3VCDVAFizSXwToPD5ZkCqSD3Ulc2O40F4vf1TfmW4r6MfydytymscUt5MoIzYwALKofxxG9ENE6ECq2R0CPQRt9Jh9at4PzyDniz3j7poM54mnZCM3BqHnSSeKHH86rTk9dNmXMd0sLrvWGbVtcgIZ0FNqfRCbrOvNKuFBYflGZ5FTUolhCrmBc7u5dHtq7RHixZ_w5fe3p0hXZfuU3vxDiPfhdcmDG8zYPw0uoznBWttYo4SU" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Aerial Pine Forest</p>
-                    <p className="opacity-80 font-normal">By DroneViews</p>
-                  </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-              <img alt="Couple walking in winter forest" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtFjzVakEt1Jw8R3c1oYZiZIF-dowxMfUToiFCvYhrnk_47EQsPjVLyKZTcJYvW3bIM5ZuxaZp_F_lg_ju5S1sEJzd0zEhg0wIfwMidKtwWK9i87JKX5d2CbrB4ynQPFgNmOhJI2OCPnLMPiPxRDY5anCtNOr6NYfGrLHLwtdHScboBmfozF9LMmyENjWvxLkrGl8t-w67rvp_ZhGkNoQMoXtj1uPB5nVS-HY6GaItndPN3VQ-PLkgwr9NYTqRdepQFSl14aR0TkE" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Couple Winter Walk</p>
-                    <p className="opacity-80 font-normal">By AuthenticLife</p>
-                  </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="masonry-item relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-              <img alt="Abstract blue and white shapes" className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARQu9utucBXMzjo5wfdqLJLd-o8HEFallAZ0agRt4pHohRn24dSy1pf79KhaYt3FKYcJzrb8NdI57DmvY6K_RKl5oXS0ghhpvM2-yK08WABQwDEIdjMS3b_ZzrdFAIXrWdaUuyh6ONa1S7-AXPeVqi-7Nytrwj-nN3nmJl8p6OX4Lb6wERn0mODwqt0ZAyhYTwh4RmfRktFGbyJehrPC-cZPyCX7p_EB09kg23D6SfmE-rl0oc41GSdWVaxNcyQwYCv7fVbsYdqVw" />
-              <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-sm">
-                <span className="material-icons text-[10px] align-middle mr-0.5">gesture</span> Vector
-              </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
-                <div className="flex justify-end gap-2">
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">favorite_border</span>
-                  </button>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black text-text-main-light dark:text-text-main-dark p-2 rounded-lg shadow-sm transition-colors">
-                    <span className="material-icons text-xl">add_shopping_cart</span>
-                  </button>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="text-white text-xs font-medium truncate max-w-[70%] drop-shadow-md">
-                    <p>Abstract Winter Flow</p>
-                    <p className="opacity-80 font-normal">By VectorArt</p>
-                  </div>
-                  <button className="bg-white/90 dark:bg-black/70 hover:bg-white dark:hover:bg-black p-2 rounded-full shadow-sm transition-colors">
-                    <span className="material-icons text-xl text-text-main-light dark:text-text-main-dark">file_download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="flex justify-center mt-12 mb-8">
-            <nav className="flex items-center gap-2">
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark text-text-sub-light dark:text-text-sub-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors disabled:opacity-50" href="#">
-                <span className="material-icons text-base">arrow_back</span>
-              </a>
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-medium" href="#">1</a>
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark text-text-main-light dark:text-text-main-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="#">2</a>
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark text-text-main-light dark:text-text-main-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="#">3</a>
-              <span className="text-text-sub-light dark:text-text-sub-dark px-2">...</span>
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark text-text-main-light dark:text-text-main-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="#">15</a>
-              <a className="w-10 h-10 flex items-center justify-center rounded-lg border border-border-light dark:border-border-dark text-text-sub-light dark:text-text-sub-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="#">
-                <span className="material-icons text-base">arrow_forward</span>
-              </a>
-            </nav>
+            <button onClick={loadMore} disabled={loadingMore} className="px-8 py-3 rounded-full border border-gray-300 dark:border-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition dark:text-gray-300 disabled:opacity-50">
+              {loadingMore ? 'Loading...' : 'Load More'}
+            </button>
           </div>
         </div>
       </main>

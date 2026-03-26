@@ -1,41 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
-export default function Subscription() {
+export default function Subscription({ onLoginClick }) {
     const navigate = useNavigate();
     const [planType, setPlanType] = useState('individual');
 
     return (
         <div className="w-full h-full min-h-screen bg-white">
 
-            <nav className="sticky top-0 z-50 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-6">
-                            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary text-3xl">shutter_speed</span>
-                                <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">ShutterStock<span className="text-primary">Clone</span></span>
-                            </Link>
-                            <div className="hidden md:flex space-x-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <a className="hover:text-primary transition-colors" href="#">Images</a>
-                                <a className="hover:text-primary transition-colors" href="#">Video</a>
-                                <a className="hover:text-primary transition-colors" href="#">Music</a>
-                                <a className="hover:text-primary transition-colors" href="#">Editorial</a>
-                                <a className="hover:text-primary transition-colors" href="#">AI Generator</a>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <button className="md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white">
-                                <span className="material-symbols-outlined">search</span>
-                            </button>
-                            <Link to="/subscription" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">Pricing</Link>
-                            <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
-                            <Link to="/login" className="text-sm font-medium hover:text-primary transition-colors">Log in</Link>
-                            <Link to="/subscription" className="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600 transition-colors">Sign up</Link>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <div className="sticky top-0 z-50 shadow-md">
+                <Navbar onLoginClick={onLoginClick} />
+            </div>
             <div className="relative bg-surface-light dark:bg-surface-dark pb-16 pt-12 lg:pt-20">
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10 dark:opacity-20 pointer-events-none">
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
