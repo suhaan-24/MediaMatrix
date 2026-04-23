@@ -5,6 +5,7 @@ import Search from './pages/Search';
 import Details from './pages/Details';
 import Subscription from './pages/Subscription';
 import SubscriptionSuccess from './pages/SubscriptionSuccess';
+import AIGenerator from './pages/AIGenerator';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/details/:id" element={<Details onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/subscription" element={<Subscription onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess onLoginClick={() => setIsLoginOpen(true)} />} />
+          <Route path="/ai-generator" element={<AIGenerator onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/profile" element={
             <ProtectedRoute onLoginClick={() => setIsLoginOpen(true)}>
               <div className="pt-24 text-center">

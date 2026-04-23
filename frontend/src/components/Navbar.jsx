@@ -76,7 +76,7 @@ export default function Navbar({ onLoginClick }) {
             <Link to="/search?q=music" className="hover:text-white transition">Music</Link>
             <Link to="/search?q=editorial" className="hover:text-white transition">Editorial</Link>
             <Link to="/search?q=3d" className="hover:text-white transition">3D</Link>
-            <Link to="/search?q=ai+generated" className="text-primary hover:text-red-400 flex items-center gap-1">AI Generator <span className="bg-primary/20 text-primary px-1 rounded text-[9px] border border-primary/30">NEW</span></Link>
+            <Link to="/ai-generator" className="text-primary hover:text-red-400 flex items-center gap-1">AI Generator <span className="bg-primary/20 text-primary px-1 rounded text-[9px] border border-primary/30">NEW</span></Link>
             <Link to="/subscription" className="ml-auto hover:text-white transition font-semibold">See Pricing</Link>
           </div>
         </div>

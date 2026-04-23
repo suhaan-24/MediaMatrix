@@ -154,7 +154,7 @@ export default function Home({ onLoginClick }) {
             <button onClick={() => navigate('/subscription')} className="text-sm font-medium border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition dark:text-gray-300">See pricing</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div onClick={() => navigate('/search')} className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
+            <div onClick={() => navigate('/ai-generator')} className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
               <img alt="AI Image Generator" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
