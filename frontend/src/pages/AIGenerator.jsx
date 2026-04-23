@@ -42,8 +42,10 @@ export default function AIGenerator({ onLoginClick }) {
   const [size, setSize] = useState(SIZES[0]);
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const [imageBlob, setImageBlob] = useState(null);
   const [history, setHistory] = useState([]);
   const [seed, setSeed] = useState(Math.floor(Math.random() * 99999));
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => { trackPageView('/ai-generator'); }, []);
 
@@ -61,30 +63,58 @@ export default function AIGenerator({ onLoginClick }) {
     return `https://image.pollinations.ai/prompt/${encoded}?width=${sz.w}&height=${sz.h}&seed=${sd}&nologo=true&model=flux-schnell&enhance=true`;
   };
 
+  const startCooldown = (seconds) => {
+    setCooldown(seconds);
+    const interval = setInterval(() => {
+      setCooldown(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const generate = async () => {
-    if (!prompt.trim()) {
-      showToast('Please enter a prompt first', 'error');
-      return;
-    }
+    if (!prompt.trim()) { showToast('Please enter a prompt first', 'error'); return; }
+    if (cooldown > 0) { showToast(`Please wait ${cooldown}s before generating again`, 'info'); return; }
+
     const newSeed = Math.floor(Math.random() * 99999);
     setSeed(newSeed);
     setLoading(true);
     setImageUrl(null);
+    setImageBlob(null);
 
     const url = buildUrl(prompt, style, size, newSeed);
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      setImageUrl(url);
-      setHistory(prev => [{ url, prompt, style: style || 'None', size: size.label }, ...prev].slice(0, 8));
+    try {
+      const res = await fetch(url);
+
+      if (res.status === 429) {
+        showToast('Rate limit reached — please wait 15 seconds and try again', 'error');
+        startCooldown(15);
+        setLoading(false);
+        return;
+      }
+      if (!res.ok) {
+        showToast(`Generation failed (${res.status}) — please try again`, 'error');
+        setLoading(false);
+        return;
+      }
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setImageBlob(blob);
+      setImageUrl(blobUrl);
+      setHistory(prev => [{ url: blobUrl, prompt, style: style || 'None', size: size.label }, ...prev].slice(0, 8));
+      startCooldown(5);
+    } catch (err) {
+      if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+        showToast('Network error — check your internet connection', 'error');
+      } else {
+        showToast('Generation failed — please try again', 'error');
+      }
+    } finally {
       setLoading(false);
-    };
-    img.onerror = () => {
-      showToast('Generation failed — please try again', 'error');
-      setLoading(false);
-    };
-    img.src = url;
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -94,24 +124,17 @@ export default function AIGenerator({ onLoginClick }) {
     }
   };
 
-  const download = async () => {
-    if (!imageUrl) return;
-    try {
-      const res = await fetch(imageUrl);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `mediamatrix-ai-${seed}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
-      showToast('Image saved!', 'success');
-    } catch {
-      window.open(imageUrl, '_blank');
-      showToast('Opened in new tab — right-click to save', 'info');
-    }
+  const download = () => {
+    if (!imageBlob && !imageUrl) return;
+    const blobUrl = imageBlob ? URL.createObjectURL(imageBlob) : imageUrl;
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `mediamatrix-ai-${seed}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (imageBlob) URL.revokeObjectURL(blobUrl);
+    showToast('Image saved to your device!', 'success');
   };
 
   return (
@@ -194,10 +217,12 @@ export default function AIGenerator({ onLoginClick }) {
           {/* Generate button */}
           <button
             onClick={generate}
-            disabled={loading}
+            disabled={loading || cooldown > 0}
             className="w-full py-3 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-red-900/30">
             {loading
               ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Generating…</>
+              : cooldown > 0
+              ? <><span className="material-icons-outlined text-lg">timer</span> Wait {cooldown}s</>
               : <><span className="material-icons-outlined text-lg">auto_awesome</span> Generate Image</>}
           </button>
         </div>
