@@ -47,10 +47,18 @@ export default function AIGenerator({ onLoginClick }) {
 
   useEffect(() => { trackPageView('/ai-generator'); }, []);
 
+  const enhancePrompt = (p, s) => {
+    const base = p.trim();
+    const styleTag = s || '';
+    // auto-add quality boosters if not already in prompt
+    const quality = 'highly detailed, sharp focus, high quality';
+    return [base, styleTag, quality].filter(Boolean).join(', ');
+  };
+
   const buildUrl = (p, s, sz, sd) => {
-    const full = [p, s].filter(Boolean).join(', ');
-    const encoded = encodeURIComponent(full);
-    return `https://image.pollinations.ai/prompt/${encoded}?width=${sz.w}&height=${sz.h}&seed=${sd}&nologo=true&model=flux`;
+    const enhanced = enhancePrompt(p, s);
+    const encoded = encodeURIComponent(enhanced);
+    return `https://image.pollinations.ai/prompt/${encoded}?width=${sz.w}&height=${sz.h}&seed=${sd}&nologo=true&model=flux-schnell&enhance=true`;
   };
 
   const generate = async () => {
@@ -66,6 +74,7 @@ export default function AIGenerator({ onLoginClick }) {
     const url = buildUrl(prompt, style, size, newSeed);
 
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
       setImageUrl(url);
       setHistory(prev => [{ url, prompt, style: style || 'None', size: size.label }, ...prev].slice(0, 8));
@@ -85,14 +94,24 @@ export default function AIGenerator({ onLoginClick }) {
     }
   };
 
-  const download = () => {
+  const download = async () => {
     if (!imageUrl) return;
-    const a = document.createElement('a');
-    a.href = imageUrl;
-    a.download = `mediamatrix-ai-${seed}.jpg`;
-    a.target = '_blank';
-    a.click();
-    showToast('Download started!', 'success');
+    try {
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `mediamatrix-ai-${seed}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      showToast('Image saved!', 'success');
+    } catch {
+      window.open(imageUrl, '_blank');
+      showToast('Opened in new tab — right-click to save', 'info');
+    }
   };
 
   return (
@@ -190,7 +209,7 @@ export default function AIGenerator({ onLoginClick }) {
               <div className="flex flex-col items-center gap-4 text-gray-500 p-12">
                 <div className="w-12 h-12 border-4 border-gray-700 border-t-primary rounded-full animate-spin"></div>
                 <p className="text-sm">Creating your image…</p>
-                <p className="text-xs text-gray-600 text-center max-w-xs">This usually takes 5–15 seconds depending on complexity</p>
+                <p className="text-xs text-gray-600 text-center max-w-xs">Usually takes 3–8 seconds</p>
               </div>
             )}
             {!loading && !imageUrl && (
