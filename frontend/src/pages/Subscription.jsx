@@ -11,6 +11,10 @@ export default function Subscription({ onLoginClick }) {
     const { user, token } = useAuth();
 
     useEffect(() => { trackPageView('/subscription'); }, []);
+    useEffect(() => {
+        document.title = 'Pricing Plans — MediaMatrix';
+        return () => { document.title = 'MediaMatrix'; };
+    }, []);
     const [planType, setPlanType] = useState('individual');
     const [loadingPlan, setLoadingPlan] = useState(null);
 

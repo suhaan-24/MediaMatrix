@@ -9,15 +9,19 @@ export default function Home({ onLoginClick }) {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  useEffect(() => { trackPageView('/'); }, []);
+  useEffect(() => {
+    trackPageView('/');
+    document.title = 'MediaMatrix — Stock Images, Videos & Music';
+    return () => { document.title = 'MediaMatrix'; };
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [assets, setAssets] = useState([]);
+  const [assetsLoading, setAssetsLoading] = useState(true);
   const [favourites, setFavourites] = useState(new Set());
   const imageInputRef = useRef(null);
 
-  const handleSearchByImage = () => {
-    imageInputRef.current?.click();
-  };
+  const handleSearchByImage = () => { imageInputRef.current?.click(); };
   const handleImageFileSelected = () => {
     showToast('Visual search is coming soon!', 'info');
     if (imageInputRef.current) imageInputRef.current.value = '';
@@ -36,35 +40,30 @@ export default function Home({ onLoginClick }) {
     showToast(`${feature} — coming soon!`, 'info');
   };
 
-  // Fetch from Search API or master Asset API
   const fetchAssets = async () => {
+    setAssetsLoading(true);
     try {
-      // 1. Fetch from Local Database
-      const url = searchQuery 
+      const url = searchQuery
         ? `${API_URL}/search?q=${encodeURIComponent(searchQuery)}`
         : `${API_URL}/assets?limit=12`;
       const res = await fetch(url);
       const data = await res.json();
-      let dbAssets = data.success ? data.data : [];
-
-      // Only use real backend assets and filter out broken URLs natively
-      const combined = [...dbAssets].filter(a => a?.fileUrl && a.fileUrl.trim() !== '');
+      const combined = (data.success ? data.data : []).filter(a => a?.fileUrl?.trim());
       setAssets(combined);
     } catch (err) {
-      console.error("Failed to fetch assets", err);
-      showToast('Failed to load assets. Please try again.', 'error');
+      showToast('Failed to load assets.', 'error');
+    } finally {
+      setAssetsLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    fetchAssets();
-  }, []);
+  useEffect(() => { fetchAssets(); }, []);
 
   return (
     <div className="w-full h-full min-h-screen bg-white">
 
       <div className="bg-primary text-white text-xs py-2 text-center font-medium">
-        Get 10 royalty-free image downloads each month with a cost-saving subscription. <a className="underline ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase hover:bg-gray-100" href="#">Buy now</a>
+        Get 10 royalty-free image downloads each month with a cost-saving subscription. <button onClick={() => navigate('/subscription')} className="underline ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase hover:bg-gray-100">Buy now</button>
       </div>
       <Navbar onLoginClick={onLoginClick} />
       <header className="relative bg-black overflow-hidden h-[500px] flex items-center justify-center">
@@ -75,11 +74,11 @@ export default function Home({ onLoginClick }) {
         <div className="relative z-10 w-full max-w-5xl px-4 text-center">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight drop-shadow-lg">This is where great work starts</h1>
           <div className="flex justify-center flex-wrap gap-6 text-gray-300 text-xs font-medium mb-4">
-            <button className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">image</span> Images</button>
-            <button className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">videocam</span> Video</button>
-            <button className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">article</span> Editorial</button>
-            <button className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">music_note</span> Music</button>
-            <button className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">auto_awesome</span> AI Generator</button>
+            <button onClick={() => navigate('/search?q=image')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">image</span> Images</button>
+            <button onClick={() => navigate('/search?q=video')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">videocam</span> Video</button>
+            <button onClick={() => navigate('/search?q=editorial')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">article</span> Editorial</button>
+            <button onClick={() => navigate('/search?q=music')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">music_note</span> Music</button>
+            <button onClick={() => navigate('/ai-generator')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">auto_awesome</span> AI Generator</button>
           </div>
           <div className="flex items-center bg-white rounded-lg overflow-hidden shadow-2xl h-14">
             <button className="px-4 text-gray-600 border-r border-gray-200 h-full flex items-center gap-1 text-sm font-medium hover:bg-gray-50 bg-gray-50">
@@ -215,7 +214,17 @@ export default function Home({ onLoginClick }) {
             </div>
           </div>
           <div className="masonry-grid">
-            {assets.map((asset) => (
+            {assetsLoading && Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid mb-6 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" style={{ height: `${200 + (i % 3) * 80}px` }} />
+            ))}
+            {!assetsLoading && assets.length === 0 && (
+              <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
+                <span className="material-icons-outlined text-5xl mb-3">image_search</span>
+                <p className="font-medium">No assets found</p>
+                <button onClick={() => navigate('/search')} className="mt-4 px-6 py-2 bg-primary text-white rounded-full text-sm font-bold hover:bg-primary-hover transition">Browse all assets</button>
+              </div>
+            )}
+            {!assetsLoading && assets.map((asset) => (
               <div key={asset._id} onClick={() => navigate(`/details/${asset._id}`)} className="break-inside-avoid mb-6 rounded-lg overflow-hidden group relative cursor-zoom-in shadow-sm hover:shadow-lg transition bg-gray-100 dark:bg-gray-800">
                 {asset.type && (asset.type.includes('video') || asset.type.includes('audio')) ? (
                   <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500 relative bg-gray-900 border border-gray-800">
@@ -241,7 +250,7 @@ export default function Home({ onLoginClick }) {
                     <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
                     <div className="flex gap-2">
                       <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset._id, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
-                      <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (asset.fileUrl) { window.open(getMediaUrl(asset.fileUrl), '_blank'); } showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
+                      <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (!asset.fileUrl) { showToast('File not available', 'error'); return; } window.open(getMediaUrl(asset.fileUrl), '_blank'); showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
                     </div>
                   </div>
                 </div>

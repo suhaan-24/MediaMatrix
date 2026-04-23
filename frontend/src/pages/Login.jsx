@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export default function Login({ onClose }) {
     const { login, register } = useAuth();
+    const { showToast } = useToast();
     const [isSignUp, setIsSignUp] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -38,7 +40,7 @@ export default function Login({ onClose }) {
                 </button>
                 <div className="w-full md:w-1/2 relative bg-black hidden md:flex flex-col justify-center items-center text-center p-12 text-white">
                     <div className="absolute inset-0 z-0">
-                        <img alt="Astronaut floating in deep space with blue nebula" className="w-full h-full object-cover opacity-80 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClrl3HR4vIKF866amn2rT_eBC8J9x40NPhmxoPI9nsprV9CXQP1Es8vffcuFG9iad2NIsDD9CgpBvnVmgSBrnh7m3XskpLzEuDhQ3_nF8RdTb3GmWAJVuFznK_Tim0JyOjIBdsrvCn2xKWKMyPwI61SLOAEv8qfGn4FYfltT_hdlUTUz8D7_nQWMS9azDO8mE-01lBVpK8UNmTP7Cm2gzcYiMnSSDCBCEuo7yIovOi2kuoEYCUYk9_goK8F1rm-bjJFJEuoxd9M" />
+                        <img alt="Creative workspace" className="w-full h-full object-cover opacity-80 mix-blend-overlay" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80" />
                         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/60 to-black/80 mix-blend-multiply"></div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
                     </div>
@@ -81,9 +83,9 @@ export default function Login({ onClose }) {
                             
                             {!isSignUp && (
                                 <div>
-                                    <a className="text-sm font-medium text-gray-900 dark:text-white underline decoration-1 hover:text-blue-600 transition-colors" href="#">
+                                    <button type="button" onClick={() => showToast('Password reset coming soon! Contact support.', 'info')} className="text-sm font-medium text-primary hover:text-primary-hover transition-colors">
                                         Forgot your password?
-                                    </a>
+                                    </button>
                                 </div>
                             )}
 

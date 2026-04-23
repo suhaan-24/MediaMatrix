@@ -47,7 +47,11 @@ export default function AIGenerator({ onLoginClick }) {
   const [seed, setSeed] = useState(Math.floor(Math.random() * 99999));
   const [cooldown, setCooldown] = useState(0);
 
-  useEffect(() => { trackPageView('/ai-generator'); }, []);
+  useEffect(() => {
+    trackPageView('/ai-generator');
+    document.title = 'AI Image Generator — MediaMatrix';
+    return () => { document.title = 'MediaMatrix'; };
+  }, []);
 
   const enhancePrompt = (p, s) => {
     const base = p.trim();

@@ -11,6 +11,10 @@ export default function Search({ onLoginClick }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => { trackPageView('/search'); }, []);
+  useEffect(() => {
+    document.title = searchQuery ? `"${searchQuery}" — MediaMatrix Search` : 'Search Assets — MediaMatrix';
+    return () => { document.title = 'MediaMatrix'; };
+  }, [searchQuery]);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
