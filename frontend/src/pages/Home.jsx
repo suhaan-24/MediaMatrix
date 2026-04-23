@@ -69,7 +69,7 @@ export default function Home({ onLoginClick }) {
       <Navbar onLoginClick={onLoginClick} />
       <header className="relative bg-black overflow-hidden h-[500px] flex items-center justify-center">
         <div className="absolute inset-0 opacity-60">
-          <img alt="Abstract gradient background" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEkzsiD7bvkwsa2dRtvXnSwkQt0h6sJEeTlTvZ0j03z8JvzGCtR_yUUVcsaFdbmDB4Ha3SIG9qCXAuZtk1p4_qsPzWtPyRAkDzPpH8tp9L7FulraNE_354-EsfFaZgjBGvLsxlf9f5Jd1mc48dlSrC-Md4ZBGM9ohhLF2pTL6B0f6Ze4u7BblJhTRaiS2EhZG2oHTz0rJB6aaFuVrekapV7vXN5z3sb4gLeGEHzwtF5zm5fIYxIgPbYQUcq8VzhJvr9B2Eg5pYPXE" />
+          <img alt="Abstract gradient background" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=1920&q=80" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/80"></div>
         </div>
         <div className="relative z-10 w-full max-w-5xl px-4 text-center">
@@ -110,7 +110,7 @@ export default function Home({ onLoginClick }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link to="/search" className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Premium Content" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJlsobH-yKrQcgXOCgCOciSRPzcL2HwQpmEBQMEyggtIqfMXYwJAvsPek25997mzoFHgPbLDQ8iMXBFOqHJXs30KSLeDHlPSD_2cw1lZZdLx-duLyBce4pa9mvT_S-QEeH-KtoHUBl0oWjoBo11vLDijpbueMMnUhQRol3Dy4AQLv3VyFqAyJn40jG4M3ce_2aKmx0HHEvbn1oQUhnQ57GOG5hlVgClV828z7wz2-V-bp7yza7Ac7bsuQhXeOfPgzso_DyxSMhuu8" />
+                <img alt="Premium Content" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=120&q=80" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Premium Content</h3>
@@ -119,7 +119,7 @@ export default function Home({ onLoginClick }) {
             </Link>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Custom Production" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZbkf-Y8CYVCWLF9PABk2wUDWbIUeaLITO3MIg71TZiJeSYSCMUAQg-nzuRLvn9O0bazCF_AsduYJ8XTM175Med0gf_7AoX9FwL7my9dvCmfpRkH8aIRM4ov1zKGyo85e-fp00ldwH8jjCOnfYoEefPjC0cLND3vUZtRVW36tEAGvD4XgP4OfLHbANXjvogCnSiFDSYJ-k6No3FFoBQVciDDZzd6FU0lP2z9PYJfS9l91sSLYlS2xjGP77-Hym2DZS0UGwCVBpOV8" />
+                <img alt="Custom Production" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=120&q=80" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Custom Production</h3>
@@ -128,7 +128,7 @@ export default function Home({ onLoginClick }) {
             </a>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Generative AI" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMwqNWu7YJbI9XeSUp5u58OkJtlAaL2IUCh3ix1q_r4v42UsiPSZncreqb2_5r99Tx5nqU9olXdUwxOzf-CWTyruVJqtnAnW7DSERGFlkrbzJTaaiFagvBRWVOC_o17a38NHI8OPukidS0XT_mTGgqO_tfOWaegvZsX_zpAdlUdp_O96vXq05jHNz2Wy8hF92SzyzXR_a92lfR1XCAN2tkaWGMelUG879qfGQemBpU_6d-D-0gvXCotzhniWvhZScfXacc8FcU1W4" />
+                <img alt="Generative AI" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=120&q=80" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Generative AI</h3>
@@ -137,7 +137,7 @@ export default function Home({ onLoginClick }) {
             </a>
             <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
-                <img alt="Rights-Cleared" className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjoW0H8_Neboj7slLupNts6mYgrcyUyIZw7_i0bVIFjC8-daMRlOWhz5BHDiGGEJJb5I9RF_aAd4EdxPOyrUO26IfXL0WBoNoiC9duwUqpYq6hQ-izH0ycnCKAByOfl-985VQ6qET7ykVbaODv3HFcBJ2uPtx8-M6Aqs2UEv2VyIZMZPBvbwqnEaLFLuIu5He0qGUKQhDZA2gEoJ370_EvkySssjuJglQBaZK9E_KqNxGFNE6c-bqNvA3fBmI0rt9-0rMb93CaKEE" />
+                <img alt="Rights-Cleared" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=120&q=80" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Rights-Cleared Datasets</h3>
@@ -155,21 +155,21 @@ export default function Home({ onLoginClick }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div onClick={() => navigate('/search')} className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
-              <img alt="AI Image Generator" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC02MDavJf2hxe4_QMtTARTB3ClariQ-B6nMfAsTuVxwwrYaY9LQRdNT4MojR41w1pvHPZbGv1c0xBMSnFnAnnt4TgrSEchwV-9ARO_OnO4BOMw-eEWJ6Fe_kBPXL6VfvnAA99FBnvu5yqh0JuPvbkyUrFeTMVE-9GHNJUjLYbtAMRYe81yo8lbCa23tjmlRvXwhd3Vk895RrwCTRNSu8cJ-Cqovgy3M0tdQdaAswaF4p4TSKrHYxy4UTfG0MlV--NHT5HjiQXnJtQ" />
+              <img alt="AI Image Generator" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <h3 className="text-lg font-bold">AI Image Generator</h3>
               </div>
             </div>
             <div className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
-              <img alt="Images" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMPoMOspeeRklniMI0owto_pUd5xq_7ORMX0Mj1mKFdjvRVXVTjtSzj3A4d6RHyqZtUD-ZKfnZXI3qX5OzMxAuzdHWJJEIa-flKTRnNGBilOXTyIcO_LSWk3IDDOEhVE1UUsyNKFeYn4l2B_ZgxYz6vUZVsNlESXRBMtslqRHHM7zPkE6ZJAhbgtBFSKKxmMMfZOl2I9DgSHhoAkgl7xVxfMo_DdLDlDu1vTKgCmllp2SLscE0G11MEG4as5peUek98ZYuneuOf0Q" />
+              <img alt="Images" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <h3 className="text-lg font-bold">Images</h3>
               </div>
             </div>
             <div className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
-              <img alt="Video" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhU3ubZKsRWykRgVxvDnPMGq8VSJFq0QegoymaE-baKVM2PY9zZ6LOpI9W9zdCPnOwmk5rP41T-Tp7RTxMqqPFuNYpxU4YeQyrNgSQsFi2hLNZmvGhbMCsANozymXOpW6jz-j1lFC8m1F8mib2Bm0Cv7KtzZtcyofUXrelN1I3VdhItq1B4VontKPYS29EhQVzvfJ4JkBJElVJd1gS8k7KpkjN2Cv0OO6QpzBjApXM8E5mwuxBuzUCmF1Dwosl68opKTEitVYbNiA" />
+              <img alt="Video" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1536240478700-b869ad10f039?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <h3 className="text-lg font-bold">Video</h3>
@@ -179,7 +179,7 @@ export default function Home({ onLoginClick }) {
               </div>
             </div>
             <div className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
-              <img alt="Music" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj_fNVI3_ERvWu3RDjlmUcCA_LreU7VXrTwX3es8vXoBFvHt2jzg8dblYEM39vPniZG17I2bgUPIJ7IuJoQETPDySCAf7CIVIKed3g8mgeXtMkkS5iREeGsFuoNjGy9iCq14Qe8FThWRKdjSUSWNa67WL759KLs7THB0QOcGTIxKKJkqm4qCPurTSA3Zj1oo9rW9m44ZPkZndk2KTyBV2Or7i2XM9KUOVXaCCAtkjz2kzyq4dsuSx64sxknr4bH_NN_Lm6N9tcjz0" />
+              <img alt="Music" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <h3 className="text-lg font-bold">Music</h3>
@@ -259,49 +259,49 @@ export default function Home({ onLoginClick }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-red-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAacTHqUBEXj1btuSFANYxQQV3NpcqomAAoHq1rsKZ5v1lWH62pnVFsbDrSJGy2Zg_ln2-b-X09gxGoNXGcYDr4FzVUFFeJhI4eAB3NDdqqnuhje2qZRNqhuMZ01oTiDOE_Vfv3heOLzWSuS-pugpCICwiU1Pts8pF271poG1a0ALz4OZjTGrKo5UrpxlxUC2ztXO-cZnZywTSVoFnAyicWC_LC_S7ll3W928hRQUQuAWmc-UbXTS_TdMxITNVQmI7Okr7w64KaxIA" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Images</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-blue-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfz1M0kMTUEPaskYnvwsUbeZq3-0piVPLouolVeO-ZYbdereYnX0lPuXpVqjrFZYVvfRxYDlpb5qQyRym12zRwnpRk3S7YkIDKi0hu-NYOutlm-mF8phB1OeFWFQgiKfBR8qTEbGLLwtsiRJrFqR6cn5LpqEox0XI3kNDTzAOemBsvOhFzUHakcgQYsz1WG_j8u5JJNEhFTZIJurCK7937lYV4Fl4lbi4Fg-8w5sEk4c9Pn1eeQYkv2LbnP3Uk9vW9ndw1lqrDaXI" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1536240478700-b869ad10f039?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Video</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-yellow-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN4o2DrNDMdR_xWd1PgUGH6DK_4kcM0EpOMEoGe7PyX5xoI_extz5Ob8YAKB-L4rbPvAeiOeBbBaL3z-5vkwnfv3WrLIHv8X4v1tKLRuHGs2AsTFWZG6nIPi0JewOHlI5U-pN4HOep-gHofy8_iKIlS6l3Pvn7C1x_FegHjYrQDw7sqV44LrTFb3QRpDx7KKlNNdMeyW7UG8KMGh2wfoz_1PRMvIgnkrX-2VjZv2m50wWodIrXxc6ruk7SJBv_Km-sBL53AGsbDxU" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Music</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-purple-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOes13fFZt-NAknD0_WhEQwpsjUgPv1Qtiq-YaQHAmYQAEngJIIV16CY7sQSKmyVUqM3iT7uBWWmxz4YrlnpdPIAgmk8P0mBwQY-4B-8x9Bh5pXU-MaaK3r6_FPs-bolqBZMINztGaOH6pSPElwaeTFH74ZPSl2q_5GatdzPkHCjhEiSDNODf2kjCT__6S4yY3DvJaNsg8C6orNKGdMVMUM_wWActu1p64vV9TmKnVAOt83h34RT5oClm6GOiJisVXLsjOz8XRPBQ" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Sound effects</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-green-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNShsLKeMBtpI9VZavBwtKlrfaUb_XMPRYERHOw1bttToWUvdVZGzY8QdVilwQH3N-9QUD0JljAgngCy-Uywt2n3IzCZ2Yz_9ELeTe8cqpPZCuFR98UBtDMicxe0WpIN8QuJUi-_bnmha48g9k_QjZcXqvHNO6-WlHf1Uizg4i-T_Jw55iwATOtGfyvXUlOnMiLOeG5dY8fsw3O6dFw_8bjT6oWQj5E0YA-78Q_WSx5EyVi3ak9ZWfh_Pa8NlHaYEztOtcdWadGws" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">AI Image Generator</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-indigo-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgrJ1tLaLO3haNtp8FpFIleFsTywWlXPZC7oQSH9C6tm9B_HIuyFm2DbZmObVJ4nufzKaXulYhiI7_D_BxSmCfA0eTSK-rXyCxNaKkFuk4WlqrLlXnP43atGQjID-2mp2MkVQhwxoSU56-ukVhPgCKdaJVh-ORScpRiXeibNRQDb69hWjvqJ_qpPBBMVedu9DxY8Bkn65oAuDHofaNqKx7RwpC1ziKmQZ6dg6rdntJxtjRJ1FbjXduGlGAsBw_dodKLoN0xshUSjo" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Vectors</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-pink-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUgbIPH0xnYIyyVleTl_zqfWoA4MDyw0ExB_Dbl9OoiTKjBj-_Snlpq2b9zyNPcIF1VDvsQBcNo-cewdQ7NrABXwuhXhFcYmTEsaDDW7jxCrcg_Lscy1LgwPrtodlzft9CvWA6QEsRbK2bgnlSiqDUEX_kfk764NF_mlvH8C8BGhBSSdtYmBM1Cx4Z20Yg2Q8kAIXUqoyj_iwEAhvs2T6tdxl9fxkFaCeWcPFeN_rPKXXIem6Y9KUAfoxOedSlWAkAIHBEEla5kds" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Photos</span>
             </a>
             <a className="flex items-center space-x-3 group" href="#">
               <div className="w-12 h-12 rounded bg-orange-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_zA-pbtGobidwY4_5jY5rEyX4RfAi81JuoxGD5pH9OSAjuKiE-uaL__I7Kt_Lp4BZsMuACVK2JGQqs_Q64Lxi-mJJv9Xfk7NARuKHr8o5ssNlv-aYWFAt6yFn7AnO7lw_rhEmTYwKVCLJOlG5exC4MsUUe-y_55Mrg37CviwtHw09rcEL__ij9u-l3MlweBMVe2gsV11AAnRk3hBwmpYQHhnjM90Y84X3BaEF2Nqdr9xDZrCXFxl3s_OA_A1nJVQNNIweeyESXX4" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=100&q=80" />
               </div>
               <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Templates</span>
             </a>
@@ -316,28 +316,28 @@ export default function Home({ onLoginClick }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="relative group h-96 rounded-xl overflow-hidden cursor-pointer shadow-lg">
-              <img alt="Blossoming Spring" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA99hKZgGXhlKyRASRWX8H4UZcVH1jFdPefLZHECo0YpgeFC7rnqbbS-CUVpGMTz5sBWf_HTjF1alIyz6QcbRzc-Kmd-k5O7nhE76afHSZmPT4sLogJjjvIzXgHA06PsKLl-6a3zl5AomPZcZ-dApFzfGg45vInkqtWwtSOJBp__luuThyh-E_2bRZjYNnBDA7Yjqc64Muzhjc__pg3gU1QCQKQv8o8D08j9v3lZU2cc39ZZWSwr-uas0l9JHoVVgBzdMXGZizCe7k" />
+              <img alt="Blossoming Spring" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1490750967868-88df5691cc21?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white text-center w-full pr-12">
                 <h3 className="text-xl font-bold">Blossoming Spring</h3>
               </div>
             </div>
             <div className="relative group h-96 rounded-xl overflow-hidden cursor-pointer shadow-lg">
-              <img alt="Moments in Motion" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4Qn1q4g6zQpf1_WT6WAb1IqA_pBKmzwVdmLZFZ_wA0N6ZZH8JKo4Y5r5R-PvxsVzjeCzRCy3qjD4vlIopeEp9QA_jNIbi_fLqtLXY66SfxtF2W-uCpBGxgBcgL0bjrYYb-aRb02DK7PuEmDZI4BjJzelXckDf4NCm7TtktBAs2mIvCMVdFtaOS4tbiMIrTtE781SjouyOnS4JeUDyuNXDpqyh0gqqOVuT5At_avmp8Z92okLkAoAR6uZ2xaCEHVcRFDUDZxRIaik" />
+              <img alt="Moments in Motion" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white text-center w-full pr-12">
                 <h3 className="text-xl font-bold">Moments in Motion</h3>
               </div>
             </div>
             <div className="relative group h-96 rounded-xl overflow-hidden cursor-pointer shadow-lg">
-              <img alt="Paris Romance" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcXX_E8tyv_IDO6TsOMqaMQedNrILoKm0kN3TgxtDAEnCbRWrF1tJA3M1H29HFTzgj7kogGJNev_Nh_uL0myFVk4v46U3ACqSU9C9eGtcgejVXePsoJ_5dxnFTNM3SDvYZGfLP5Apze5l5858ViGi-OQ09Y1DOKdicmZc8pC_ZQx3caMFTQKNFo0zSkq7e3Qfml5Gr3B1Q3Q3M95ODFsxm969UbC0P01F79CcJfsZ2JkpuN4UaKm5HPWVwWpRUcRVvcTdbqlE-KMw" />
+              <img alt="Paris Romance" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white text-center w-full pr-12">
                 <h3 className="text-xl font-bold">Paris Romance</h3>
               </div>
             </div>
             <div className="relative group h-96 rounded-xl overflow-hidden cursor-pointer shadow-lg">
-              <img alt="Gradient Vectors" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6WGPR6jSwe07Z_bRCi97sSc3ehzcrAHYwyRdQnTWjf3OCKznfk_6ftbdI73rQKGNZQWr-_lmxDipWlwo6XC56M008Fw5AtzmVjVvrKM0XdtQWW1pe2YKIs98DLbAOiBMApu-CUda1CzQ6-ImI_gULJRO-QW2Zs6COXx-SO8hs69YnrEaFhrRBq0qxl26u33AIO2mgbLGOOd91LDKq_RSKUrz2xwpQ_ahi2pATnh_WZeKra4mFDnOyuqHlxAZ3-jUpAfwjj4U5Kqg" />
+              <img alt="Gradient Vectors" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white text-center w-full pr-12">
                 <h3 className="text-xl font-bold">Gradient Vectors</h3>
@@ -368,7 +368,7 @@ export default function Home({ onLoginClick }) {
           <h2 className="text-2xl font-bold mb-8 dark:text-white">Creative and Marketing Guidance</h2>
           <div className="bg-white dark:bg-background-dark rounded-xl overflow-hidden shadow-sm mb-8 flex flex-col md:flex-row">
             <div className="md:w-1/2 h-64 md:h-auto">
-              <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA6iPkm1fBSynb1STpyeZ9SfrU9StlxB2n0d3z1ssyc71p1dIXS1hfDGn8mD2P8EjhkPrb3frnrDskqiAWJOWsOXaUDebRFgdjCgQ8h9a-RxaxXk98Gnkc-WhirAqWuhu4ZyA67BtIg73u0bpkFl0fUkcvk7s78imbLxyi7KSxDHuznwRqahQ4F3QW5tkekaV8nJ5G9X06WkNhu9Km_Im9uOLaL-0KIk7BwX84HHE3prBd5hTwEm6mLhEtDs8VOlB2xraaC8qeAU8" />
+              <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1553481187-be93c21490a9?w=800&q=80" />
             </div>
             <div className="md:w-1/2 p-8 flex flex-col justify-center">
               <h3 className="text-lg font-bold mb-2 dark:text-white">In The Wild: TurboSquid x House of Kardashian</h3>
@@ -378,21 +378,21 @@ export default function Home({ onLoginClick }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <article>
               <div className="rounded-lg overflow-hidden mb-4 h-48">
-                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgXFUCvkVpTc9TkC96aLl3xsWkXCXP8VwBUySzc0Udofgpfjs4MchOS5F3j2xcu21Uzvk4A9gOhVTP0ftj5b7I2ZHBL_Rvw2bHaPASnGGm32UZYP0dKzvyEJjlSDPxgwLZCdsUNaR8h6A1JbuXiC9qkMcSR5rEzCZ0wF8xLvcHFIZkcKeGa1SFzZelFplA5fRInIhYk2KAWhG9N6pA5FaCAmRZqGCvn7fonGI6MTMwrnguwPjkRfz8Ltx2vIyJCOTImrgIWHl_zWk" />
+                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80" />
               </div>
               <h3 className="font-bold text-sm mb-2 dark:text-white">Shutterstock Pricing Plans, Demystified</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Elevate your creative projects by blending stock images, audio, and video using flexible pricing plans.</p>
             </article>
             <article>
               <div className="rounded-lg overflow-hidden mb-4 h-48">
-                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7ZxFjgLxTkr_x715by5Oasfa04iWJucS2UjpnStReR4tvzuGwfjBLz6yrL6yDNEuY3ROzCpwRu4tG5qzU_3v6w9cfkJtKcy6ZeZVpTfCYgFVoTkSygSZSf_iILzVToQaHPGMdtC2yQ4VaJrrqJk8sjWzJpeBZUkLqqDWf3Sm-Mh-Z3wAMoJSAkR2fER0hQbHSA2PbbJ662dhV8Jsqn28gPvypDZYZbx1flpWvx2c8vt04NCtoTLqRP7T-Gha2SuK-kjeMT97Prms" />
+                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80" />
               </div>
               <h3 className="font-bold text-sm mb-2 dark:text-white">Introducing Indemnification for AI-Generated Images</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Shutterstock is the first to provide financial protections against legal liabilities, ensuring Enterprise customers use confidentially.</p>
             </article>
             <article>
               <div className="rounded-lg overflow-hidden mb-4 h-48">
-                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQx54zgdoNswNPEUl7iwB4pU51ugtQ1ZaoI0ZU2QJUYMith5-1Vd4od-HGGrj_Fb9yssE0FLx9mqV0Hu-bqq8PRe9xNCvMstnqUCQPLGTrvLMVjGjqXu8orMTLuG5pdG5llQ5Yb-24UyzzpGdIRggAFutC9AJJCm97vaz7eAqE9GMELF---2sGgqFnEd3GmX-Okv1BHDmZKF7nEzkUQX4UulUuFUCMU7Bw5_Vu2SBKf2fBC2EYex-pBMZ-UppwmLvB0COYkuILA8g" />
+                <img className="w-full h-full object-cover hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1525909002-1b05e0c869d8?w=800&q=80" />
               </div>
               <h3 className="font-bold text-sm mb-2 dark:text-white">What is a Color Scheme? Definitions and Examples</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Learn what a color scheme is, explore key types like Monochromatic, Complementary, Analogous, Triadic and Neutral.</p>
@@ -413,7 +413,7 @@ export default function Home({ onLoginClick }) {
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHJsf6kj-RoIDZZQ4-mCKyqKpKGHoqLK0bqdDHQD5hpNHAiRn3FPA9aGZIYkkP4Ns7VSRWHpITe3ew-BV9XWTodJr0gfMV9V0zzNDmKh-I3DyASNLrlmK8IVGEgwDZBH5NIM-9i79wBteAxRcQnvany_yu-TMIUotNW-5dZhaLqtAXGYHj1w3SEXcbV-LhUf0KSHO9iR5Hern0deM9PPOxUft4riaEY-tdfcSjcuPDFQztRpbW-HGmBggPqvyr5LU1Q6gY5NuTJbE" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&q=80" />
               </div>
               <h4 className="font-bold text-sm dark:text-white">Free stock image of the week</h4>
               <p className="text-xs text-gray-500 mb-2">By Shift Drive</p>
@@ -421,7 +421,7 @@ export default function Home({ onLoginClick }) {
             </div>
             <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKxwV8OI8bV_1d3Y-viOcResbllz-hJVx8PYwVvAg41wPAEy4a-txWnz26VtjLeZhHlafwWlt_VzWgnMimNNoFCaXy7hu1QGumaYGKPLe-iJ6OwgsCa98jEHGCJqMpYDo2KXd8s88Awb4tFjEZ4k3m-4c0iJQGKTLxP31YUpSiJ2Z976gr_ztIZjgm_kwAB2ZXCw5noQC22O6rWk4YGtZSM8gR3LwYC45OXtlwSoCm1b5ebfQrnudtBgsY9eX15dt1l80SR2Er-rE" />
+                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80" />
               </div>
               <h4 className="font-bold text-sm dark:text-white">Free stock vector of the week</h4>
               <p className="text-xs text-gray-500 mb-2">By Azurhino</p>
