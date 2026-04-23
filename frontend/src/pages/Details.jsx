@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { API_URL, BACKEND_URL } from '../config';
+import { API_URL, BACKEND_URL, getMediaUrl } from '../config';
 import Navbar from '../components/Navbar';
 import { useToast } from '../context/ToastContext';
+import { trackPageView } from '../utils/analytics';
 
 export default function Details({ onLoginClick }) {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ export default function Details({ onLoginClick }) {
   const { id } = useParams();
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => { trackPageView('/details'); }, []);
 
   useEffect(() => {
     const fetchAsset = async () => {
@@ -88,14 +91,20 @@ export default function Details({ onLoginClick }) {
             <div className="bg-surface-light dark:bg-surface-dark rounded-lg p-2 sm:p-4 border border-border-light dark:border-border-dark flex items-center justify-center min-h-[500px] relative group overflow-hidden">
               {asset.type && (asset.type.includes('audio') || asset.type.includes('music')) ? (
                 <div className="flex flex-col items-center justify-center w-full min-h-[500px] bg-gray-900 rounded relative">
-                   {asset.thumbnailUrl && <img src={asset.thumbnailUrl.replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm mix-blend-screen" alt="thumb"/>}
+                   {asset.thumbnailUrl && <img src={getMediaUrl(asset.thumbnailUrl).replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm mix-blend-screen" alt="thumb"/>}
                    <span className="material-icons-outlined text-white text-8xl mb-6 z-10 drop-shadow-lg">music_note</span>
-                   {asset.fileUrl && asset.fileUrl.startsWith('http') && (
-                     <audio controls src={asset.fileUrl} className="w-3/4 z-10 opacity-90 shadow-2xl"></audio>
+                   {asset.fileUrl && (
+                     <audio controls src={getMediaUrl(asset.fileUrl)} className="w-3/4 z-10 opacity-90 shadow-2xl"></audio>
                    )}
                 </div>
+              ) : asset.type && asset.type.includes('video') ? (
+                <div className="flex flex-col items-center justify-center w-full min-h-[500px] bg-black rounded relative group/video">
+                  {asset.fileUrl && (
+                    <video controls src={getMediaUrl(asset.fileUrl)} className="absolute inset-0 w-full h-full object-contain z-10" poster={asset.thumbnailUrl ? getMediaUrl(asset.thumbnailUrl).replace('100x100', '600x600') : ''}></video>
+                  )}
+                </div>
               ) : (
-                <img alt={asset.title} className="max-h-[700px] w-auto h-auto object-contain rounded shadow-sm relative z-10" loading="lazy" src={asset.fileUrl.startsWith('http') ? asset.fileUrl : `${BACKEND_URL}${asset.fileUrl}`} onError={(e) => { e.target.src='https://placehold.co/600x400/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
+                <img alt={asset.title} className="max-h-[700px] w-auto h-auto object-contain rounded shadow-sm relative z-10" loading="lazy" src={getMediaUrl(asset.fileUrl)} onError={(e) => { e.target.src='https://placehold.co/600x400/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
               )}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 select-none z-20">
                 <div className="grid grid-cols-3 gap-12 rotate-[-15deg]">
@@ -190,7 +199,7 @@ export default function Details({ onLoginClick }) {
                 </label>
               </div>
               <div className="space-y-3">
-                <button onClick={() => { if (asset.fileUrl?.startsWith('http')) { window.open(asset.fileUrl, '_blank'); } showToast('Download started!', 'success'); }} className="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-sm transition flex items-center justify-center gap-2">
+                <button onClick={() => { if (asset.fileUrl) { window.open(getMediaUrl(asset.fileUrl), '_blank'); } showToast('Download started!', 'success'); }} className="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow-sm transition flex items-center justify-center gap-2">
                   <span className="material-icons-outlined text-lg">download</span>
                   Download for $79
                 </button>

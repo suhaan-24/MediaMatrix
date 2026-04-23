@@ -29,6 +29,14 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'editor', 'viewer'],
       default: 'viewer',
     },
+    stripeCustomerId: { type: String },
+    subscription: {
+      plan: { type: String, enum: ['ondemand', 'flex', 'pro', null], default: null },
+      status: { type: String, enum: ['active', 'cancelled', 'past_due', null], default: null },
+      stripeSubscriptionId: { type: String },
+      stripeSessionId: { type: String },
+      currentPeriodEnd: { type: Date },
+    },
   },
   { timestamps: true }
 );

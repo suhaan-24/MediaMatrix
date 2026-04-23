@@ -143,3 +143,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Generated / compiled CSS (not hand-authored)
+frontend/src/test.css

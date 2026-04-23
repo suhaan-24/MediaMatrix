@@ -1,10 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
+import { trackPageView } from '../utils/analytics';
 
 export default function Subscription({ onLoginClick }) {
     const navigate = useNavigate();
+    const { user, token } = useAuth();
+
+    useEffect(() => { trackPageView('/subscription'); }, []);
     const [planType, setPlanType] = useState('individual');
+    const [loadingPlan, setLoadingPlan] = useState(null);
+
+    const handleSubscribe = async (plan) => {
+        if (!user) {
+            onLoginClick();
+            return;
+        }
+        setLoadingPlan(plan);
+        try {
+            const { data } = await axios.post(
+                `${API_URL}/payments/create-order`,
+                { plan },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const options = {
+                key: data.keyId,
+                amount: data.amount,
+                currency: data.currency,
+                name: 'MediaMatrix',
+                description: data.planName,
+                order_id: data.orderId,
+                handler: async (response) => {
+                    try {
+                        await axios.post(
+                            `${API_URL}/payments/verify`,
+                            { ...response, plan },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        navigate('/subscription/success');
+                    } catch {
+                        alert('Payment received but verification failed. Please contact support.');
+                    }
+                },
+                prefill: { name: data.userName, email: data.userEmail },
+                theme: { color: '#E53935' },
+                modal: { ondismiss: () => setLoadingPlan(null) },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Something went wrong. Please try again.');
+            setLoadingPlan(null);
+        }
+    };
 
     return (
         <div className="w-full h-full min-h-screen bg-white">
@@ -68,8 +121,8 @@ export default function Subscription({ onLoginClick }) {
                                 </div>
                             </div>
                             <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
-                                <button onClick={() => navigate('/login')} className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                                    Buy Pack
+                                <button onClick={() => handleSubscribe('ondemand')} disabled={loadingPlan === 'ondemand'} className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-60">
+                                    {loadingPlan === 'ondemand' ? 'Redirecting...' : 'Buy Pack'}
                                 </button>
                             </div>
                         </div>
@@ -108,8 +161,8 @@ export default function Subscription({ onLoginClick }) {
                                 </div>
                             </div>
                             <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
-                                <button onClick={() => navigate('/login')} className="w-full py-3 px-4 bg-primary text-white font-bold rounded-lg hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">
-                                    Start Free Trial
+                                <button onClick={() => handleSubscribe('flex')} disabled={loadingPlan === 'flex'} className="w-full py-3 px-4 bg-primary text-white font-bold rounded-lg hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 disabled:opacity-60">
+                                    {loadingPlan === 'flex' ? 'Redirecting...' : 'Start Free Trial'}
                                 </button>
                             </div>
                         </div>
@@ -147,8 +200,8 @@ export default function Subscription({ onLoginClick }) {
                                 </div>
                             </div>
                             <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
-                                <button onClick={() => navigate('/login')} className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                                    Subscribe Now
+                                <button onClick={() => handleSubscribe('pro')} disabled={loadingPlan === 'pro'} className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-60">
+                                    {loadingPlan === 'pro' ? 'Redirecting...' : 'Subscribe Now'}
                                 </button>
                             </div>
                         </div>
@@ -168,7 +221,7 @@ export default function Subscription({ onLoginClick }) {
                                     <span className="material-symbols-outlined text-primary mr-2">check_circle</span> Centralized billing
                                 </li>
                             </ul>
-                            <button onClick={() => navigate('/login')} className="w-full py-3 px-4 bg-primary text-white font-bold rounded-lg hover:bg-red-600 transition-colors">Contact Sales</button>
+                            <button onClick={() => { if (!user) { onLoginClick(); } }} className="w-full py-3 px-4 bg-primary text-white font-bold rounded-lg hover:bg-red-600 transition-colors">Contact Sales</button>
                         </div>
                         <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">API Integration</h3>
@@ -184,7 +237,7 @@ export default function Subscription({ onLoginClick }) {
                                     <span className="material-symbols-outlined text-primary mr-2">check_circle</span> Dedicated technical support
                                 </li>
                             </ul>
-                            <button onClick={() => navigate('/login')} className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Read Documentation</button>
+                            <button className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Read Documentation</button>
                         </div>
                     </div>
                 </div>

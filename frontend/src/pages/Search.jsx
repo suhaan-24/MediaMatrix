@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { API_URL, BACKEND_URL } from '../config';
+import { API_URL, BACKEND_URL, getMediaUrl } from '../config';
 import Navbar from '../components/Navbar';
 import { useToast } from '../context/ToastContext';
+import { trackPageView } from '../utils/analytics';
 
 export default function Search({ onLoginClick }) {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => { trackPageView('/search'); }, []);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -264,15 +267,18 @@ export default function Search({ onLoginClick }) {
                 </div>
                 {asset.type && (asset.type.includes('video') || asset.type.includes('audio')) ? (
                   <div className="p-8 flex flex-col items-center justify-center h-48 text-gray-500 relative bg-gray-900 border border-gray-800">
-                    {asset.thumbnailUrl && <img src={asset.thumbnailUrl.replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-sm mix-blend-screen" alt="thumb" loading="lazy" />}
+                    {asset.type.includes('video') && asset.fileUrl && (
+                      <video src={getMediaUrl(asset.fileUrl)} className="absolute inset-0 w-full h-full object-cover opacity-80 z-0" loop muted playsInline></video>
+                    )}
+                    {(!asset.type.includes('video') || !asset.fileUrl) && asset.thumbnailUrl && <img src={getMediaUrl(asset.thumbnailUrl).replace('100x100', '600x600')} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-sm mix-blend-screen" alt="thumb" loading="lazy" />}
                     <span className="material-icons-outlined text-5xl mb-3 z-10 text-white drop-shadow-lg">{asset.type.includes('video') ? 'videocam' : 'music_note'}</span>
-                    <span className="text-sm font-bold text-gray-200 truncate w-full text-center px-4 z-10 drop-shadow-md">{asset.title}</span>
-                    {asset.type.includes('audio') && asset.fileUrl && asset.fileUrl.startsWith('http') && (
-                      <audio controls src={asset.fileUrl} className="mt-4 w-full h-8 z-10 opacity-80" onClick={(e) => e.stopPropagation()}></audio>
+                    <span className="text-sm font-bold text-gray-200 truncate w-full text-center px-4 z-10 drop-shadow-md pb-2">{asset.title}</span>
+                    {asset.type.includes('audio') && asset.fileUrl && (
+                      <audio controls src={getMediaUrl(asset.fileUrl)} className="mt-4 w-full h-8 z-10 opacity-80" onClick={(e) => e.stopPropagation()}></audio>
                     )}
                   </div>
                 ) : (
-                  <img alt={asset.title} className="w-full object-cover" loading="lazy" src={asset.fileUrl?.startsWith('http') ? asset.fileUrl : `${BACKEND_URL}${asset.fileUrl}`} onError={(e) => { e.target.src='https://placehold.co/400x300/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
+                  <img alt={asset.title} className="w-full object-cover" loading="lazy" src={getMediaUrl(asset.fileUrl)} onError={(e) => { e.target.src='https://placehold.co/400x300/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
                 )}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-4 mix-blend-multiply"></div>
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-4">
@@ -283,7 +289,7 @@ export default function Search({ onLoginClick }) {
                     <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
                     <div className="flex gap-2">
                        <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset._id, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
-                       <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (asset.fileUrl?.startsWith('http')) { window.open(asset.fileUrl, '_blank'); } showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
+                       <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (asset.fileUrl) { window.open(getMediaUrl(asset.fileUrl), '_blank'); } showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
                     </div>
                   </div>
                 </div>
