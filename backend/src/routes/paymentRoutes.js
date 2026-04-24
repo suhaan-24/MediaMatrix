@@ -11,8 +11,8 @@ let _razorpay;
 const getRazorpay = () => {
   if (!_razorpay) {
     _razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: process.env.RAZORPAY_KEY_ID?.trim(),
+      key_secret: process.env.RAZORPAY_KEY_SECRET?.trim(),
     });
   }
   return _razorpay;

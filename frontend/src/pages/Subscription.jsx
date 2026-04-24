@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { API_URL } from '../config';
 import { trackPageView } from '../utils/analytics';
 
 export default function Subscription({ onLoginClick }) {
     const navigate = useNavigate();
     const { user, token } = useAuth();
+    const { showToast } = useToast();
 
     useEffect(() => { trackPageView('/subscription'); }, []);
     useEffect(() => {
@@ -47,7 +49,7 @@ export default function Subscription({ onLoginClick }) {
                         );
                         navigate('/subscription/success');
                     } catch {
-                        alert('Payment received but verification failed. Please contact support.');
+                        showToast('Payment received but verification failed. Please contact support.', 'error');
                     }
                 },
                 prefill: { name: data.userName, email: data.userEmail },
@@ -58,7 +60,8 @@ export default function Subscription({ onLoginClick }) {
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (err) {
-            alert(err.response?.data?.message || 'Something went wrong. Please try again.');
+            const msg = err.response?.data?.message || 'Payment failed. Please try again.';
+            showToast(msg, 'error');
             setLoadingPlan(null);
         }
     };
