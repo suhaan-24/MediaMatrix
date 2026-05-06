@@ -14,8 +14,13 @@ export default function Search({ onLoginClick }) {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [favourites, setFavourites] = useState(new Set());
+  const [favourites, setFavourites] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    return new Set(saved.map(item => item._id));
+  });
   const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'all');
+  const [orientationFilter, setOrientationFilter] = useState('all');
+  const [peopleFilter, setPeopleFilter] = useState('all');
   const [dbPage, setDbPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const debounceRef = useRef(null);
@@ -90,12 +95,23 @@ export default function Search({ onLoginClick }) {
     }
   };
 
-  const toggleFavourite = (id, e) => {
+  const toggleFavourite = (asset, e) => {
     e.stopPropagation();
+    const saved = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const existingIndex = saved.findIndex(a => a._id === asset._id);
+    if (existingIndex >= 0) {
+      saved.splice(existingIndex, 1);
+      showToast('Removed from favourites', 'info');
+    } else {
+      saved.push(asset);
+      showToast('Added to favourites!', 'success');
+    }
+    localStorage.setItem('wishlist', JSON.stringify(saved));
+    
     setFavourites(prev => {
       const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); showToast('Removed from favourites', 'info'); }
-      else { next.add(id); showToast('Added to favourites!', 'success'); }
+      if (next.has(asset._id)) next.delete(asset._id);
+      else next.add(asset._id);
       return next;
     });
   };
@@ -123,12 +139,23 @@ export default function Search({ onLoginClick }) {
     }
   };
 
-  // Client-side filter as a fallback for when typeFilter changes without a URL update
-  const filteredAssets = typeFilter === 'all' ? assets : assets.filter(a => {
-    if (typeFilter === 'image') return a.type === 'image';
-    if (typeFilter === 'audio') return a.type?.includes('audio') || a.type?.includes('music');
-    if (typeFilter === 'video') return a.type?.includes('video');
-    if (typeFilter === '3d') return a.type === '3d';
+  const getMockProp = (id, prop) => {
+    const hash = id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    if (prop === 'orientation') return ['landscape', 'portrait', 'square'][hash % 3];
+    if (prop === 'people') return ['with', 'without'][hash % 2];
+    return null;
+  };
+
+  const filteredAssets = assets.filter(a => {
+    // Type filter
+    if (typeFilter === 'image' && a.type !== 'image') return false;
+    if (typeFilter === 'audio' && !a.type?.includes('audio') && !a.type?.includes('music')) return false;
+    if (typeFilter === 'video' && !a.type?.includes('video')) return false;
+    if (typeFilter === '3d' && a.type !== '3d') return false;
+    
+    // Mock filters for demonstration
+    if (orientationFilter !== 'all' && getMockProp(a._id, 'orientation') !== orientationFilter) return false;
+    if (peopleFilter !== 'all' && getMockProp(a._id, 'people') !== peopleFilter) return false;
     return true;
   });
 
@@ -162,10 +189,10 @@ export default function Search({ onLoginClick }) {
                 onChange={handleSearchChange}
                 onKeyDown={handleSearchSubmit}
                 placeholder="Search assets…"
-                className="w-full pl-9 pr-3 py-1.5 text-sm border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-surface-dark focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full pl-9 pr-3 py-1.5 text-sm border border-border-light dark:border-border-dark rounded-lg bg-white dark:bg-surface-dark text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark bg-white dark:bg-surface-dark transition-colors whitespace-nowrap">
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium border border-border-light dark:border-border-dark rounded-lg hover:bg-surface-light dark:hover:bg-surface-dark bg-white dark:bg-surface-dark text-gray-900 dark:text-white transition-colors whitespace-nowrap">
               <span className="material-icons text-base">filter_list</span>
               All Filters
             </button>
@@ -203,15 +230,15 @@ export default function Search({ onLoginClick }) {
               <span className="material-icons text-text-sub-light text-base">expand_less</span>
             </h3>
             <div className="flex gap-2">
-              <button className="flex-1 flex flex-col items-center justify-center p-2 border border-border-light dark:border-border-dark rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group">
+              <button onClick={() => setOrientationFilter(orientationFilter === 'landscape' ? 'all' : 'landscape')} className={`flex-1 flex flex-col items-center justify-center p-2 border ${orientationFilter === 'landscape' ? 'border-primary bg-red-50 dark:bg-gray-800' : 'border-border-light dark:border-border-dark'} rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group`}>
                 <div className="w-4 h-3 border-2 border-text-sub-light dark:border-text-sub-dark rounded-sm mb-1 group-hover:border-primary"></div>
                 <span className="text-xs text-text-sub-light dark:text-text-sub-dark">Landscape</span>
               </button>
-              <button className="flex-1 flex flex-col items-center justify-center p-2 border border-border-light dark:border-border-dark rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group">
+              <button onClick={() => setOrientationFilter(orientationFilter === 'portrait' ? 'all' : 'portrait')} className={`flex-1 flex flex-col items-center justify-center p-2 border ${orientationFilter === 'portrait' ? 'border-primary bg-red-50 dark:bg-gray-800' : 'border-border-light dark:border-border-dark'} rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group`}>
                 <div className="w-3 h-4 border-2 border-text-sub-light dark:border-text-sub-dark rounded-sm mb-1 group-hover:border-primary"></div>
                 <span className="text-xs text-text-sub-light dark:text-text-sub-dark">Portrait</span>
               </button>
-              <button className="flex-1 flex flex-col items-center justify-center p-2 border border-border-light dark:border-border-dark rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group">
+              <button onClick={() => setOrientationFilter(orientationFilter === 'square' ? 'all' : 'square')} className={`flex-1 flex flex-col items-center justify-center p-2 border ${orientationFilter === 'square' ? 'border-primary bg-red-50 dark:bg-gray-800' : 'border-border-light dark:border-border-dark'} rounded hover:bg-surface-light dark:hover:bg-surface-dark transition-colors group`}>
                 <div className="w-3 h-3 border-2 border-text-sub-light dark:border-text-sub-dark rounded-sm mb-1 group-hover:border-primary"></div>
                 <span className="text-xs text-text-sub-light dark:text-text-sub-dark">Square</span>
               </button>
@@ -244,11 +271,11 @@ export default function Search({ onLoginClick }) {
             </h3>
             <div className="space-y-2">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark" name="people" type="radio" />
+                <input checked={peopleFilter === 'with'} onChange={() => setPeopleFilter('with')} className="text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark" name="people" type="radio" />
                 <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark">With People</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer group">
-                <input className="text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark" name="people" type="radio" />
+                <input checked={peopleFilter === 'without'} onChange={() => setPeopleFilter('without')} className="text-primary focus:ring-primary bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark" name="people" type="radio" />
                 <span className="text-sm text-text-sub-light dark:text-text-sub-dark group-hover:text-text-main-light dark:group-hover:text-text-main-dark">Without People</span>
               </label>
             </div>
@@ -324,7 +351,7 @@ export default function Search({ onLoginClick }) {
                     className="w-full object-cover"
                     loading="lazy"
                     src={getMediaUrl(asset.fileUrl)}
-                    onError={(e) => { e.target.src = 'https://placehold.co/400x300/e5e7eb/9ca3af?text=Image+Not+Found'; }}
+                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80'; }}
                   />
                 )}
 
@@ -338,7 +365,7 @@ export default function Search({ onLoginClick }) {
                     <div className="flex gap-2">
                       <button
                         aria-label="Toggle favourite"
-                        onClick={(e) => toggleFavourite(asset._id, e)}
+                        onClick={(e) => toggleFavourite(asset, e)}
                         className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}
                       >
                         <span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span>

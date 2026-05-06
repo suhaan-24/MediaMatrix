@@ -22,7 +22,10 @@ export default function Home({ onLoginClick }) {
   const [isDragging, setIsDragging] = useState(false);
   const [assets, setAssets] = useState([]);
   const [assetsLoading, setAssetsLoading] = useState(true);
-  const [favourites, setFavourites] = useState(new Set());
+  const [favourites, setFavourites] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    return new Set(saved.map(item => item._id));
+  });
   const imageInputRef = useRef(null);
 
   const handleSearchByImage = () => { imageInputRef.current?.click(); };
@@ -48,12 +51,25 @@ export default function Home({ onLoginClick }) {
       processImageFile(e.dataTransfer.files[0]);
     }
   };
-  const toggleFavourite = (id, e) => {
+  const toggleFavourite = (asset, e) => {
     e.stopPropagation();
+    const saved = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const existingIndex = saved.findIndex(a => a._id === asset._id);
+    
+    if (existingIndex >= 0) {
+      saved.splice(existingIndex, 1);
+      showToast('Removed from favourites', 'info');
+    } else {
+      saved.push(asset);
+      showToast('Added to favourites!', 'success');
+    }
+    
+    localStorage.setItem('wishlist', JSON.stringify(saved));
+    
     setFavourites(prev => {
       const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); showToast('Removed from favourites', 'info'); }
-      else { next.add(id); showToast('Added to favourites!', 'success'); }
+      if (next.has(asset._id)) next.delete(asset._id);
+      else next.add(asset._id);
       return next;
     });
   };
@@ -297,7 +313,7 @@ export default function Home({ onLoginClick }) {
                   <div className="flex justify-between items-end">
                     <div className="text-white text-sm font-bold drop-shadow-md truncate max-w-[60%]">{asset.title}</div>
                     <div className="flex gap-2">
-                      <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset._id, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
+                      <button aria-label="Toggle favourite" onClick={(e) => toggleFavourite(asset, e)} className={`p-1.5 rounded shadow transition ${favourites.has(asset._id) ? 'bg-primary text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}><span className="material-icons-outlined text-sm">{favourites.has(asset._id) ? 'favorite' : 'favorite_border'}</span></button>
                       <button aria-label="Download asset" onClick={(e) => { e.stopPropagation(); if (!asset.fileUrl) { showToast('File not available', 'error'); return; } window.open(getMediaUrl(asset.fileUrl), '_blank'); showToast('Download started!', 'success'); }} className="bg-white/90 p-1.5 rounded hover:bg-white text-gray-800 shadow"><span className="material-icons-outlined text-sm">download</span></button>
                     </div>
                   </div>
