@@ -2,6 +2,7 @@ import Asset from '../models/Asset.js';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import { bucket } from '../config/firebase.js';
+import { cloudinary, cloudinaryConfigured } from '../config/cloudinary.js';
 import { esClient } from '../config/elasticsearch.js';
 
 // @desc    Upload a new asset
@@ -30,22 +31,36 @@ export const uploadAsset = async (req, res) => {
       parsedTags = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
     }
 
-    // Default Fallback URL
+    // Default Fallback URL (local disk — only reliable in development)
     let fileUrl = `/uploads/${req.file.filename}`;
 
-    // Firebase Upload Implementation
-    if (bucket) {
+    // Cloudinary Upload (preferred — persistent cloud storage)
+    if (cloudinaryConfigured) {
+      try {
+        const resourceType = req.file.mimetype.startsWith('video') ? 'video'
+          : req.file.mimetype.startsWith('audio') ? 'video'  // Cloudinary uses 'video' for audio too
+          : req.file.mimetype === 'application/pdf' ? 'raw'
+          : 'image';
+
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'mediamatrix/assets',
+          resource_type: resourceType,
+        });
+
+        fileUrl = result.secure_url;
+        fs.unlinkSync(req.file.path);
+      } catch (err) {
+        console.error('Cloudinary upload failed, falling back to local storage:', err.message);
+      }
+    // Firebase Upload (fallback if Firebase is configured but Cloudinary is not)
+    } else if (bucket) {
       try {
         const dest = `assets/${req.file.filename}`;
         await bucket.upload(req.file.path, {
           destination: dest,
           metadata: { contentType: req.file.mimetype }
         });
-        
-        // Use Firebase REST URL format accessible if storage rules allow public read
         fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(dest)}?alt=media`;
-        
-        // Remove locally cached multer file after successful cloud upload
         fs.unlinkSync(req.file.path);
       } catch (err) {
         console.error('Firebase upload failed, falling back to local storage:', err);
