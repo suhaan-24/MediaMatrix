@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_URL, BACKEND_URL, getMediaUrl } from '../config';
 import Navbar from '../components/Navbar';
+import InteractiveCarousel from '../components/InteractiveCarousel';
 import { useToast } from '../context/ToastContext';
 import { trackPageView } from '../utils/analytics';
 
@@ -60,7 +61,7 @@ export default function Home({ onLoginClick }) {
   useEffect(() => { fetchAssets(); }, []);
 
   return (
-    <div className="w-full h-full min-h-screen bg-white">
+    <div className="w-full h-full min-h-screen bg-[#111111] text-white">
 
       <div className="bg-primary text-white text-xs py-2 text-center font-medium">
         Get 10 royalty-free image downloads each month with a cost-saving subscription. <button onClick={() => navigate('/subscription')} className="underline ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase hover:bg-gray-100">Buy now</button>
@@ -103,7 +104,11 @@ export default function Home({ onLoginClick }) {
           <button onClick={() => navigate('/search')} className="mt-6 px-8 py-3 bg-primary hover:bg-primary-hover text-white font-bold rounded-full text-sm transition shadow-lg shadow-red-200/30">Start exploring</button>
         </div>
       </header>
-      <section className="py-12 bg-surface-light dark:bg-surface-dark">
+
+      {/* ── Interactive GSAP Carousel ── */}
+      <InteractiveCarousel />
+
+      <section className="py-12 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">One Brand. Endless Possibilities.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -146,7 +151,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-background-light dark:bg-background-dark">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-8">
             <h2 className="text-2xl md:text-3xl font-bold dark:text-white">Content at Your Fingertips</h2>
@@ -190,7 +195,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-surface-light dark:bg-surface-dark">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h2 className="text-2xl md:text-3xl font-bold dark:text-white mb-6">Explore popular and handpicked visuals</h2>
@@ -262,7 +267,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-background-light dark:bg-background-dark">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">Your stories aren't one-dimensional, neither is our content library</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -317,7 +322,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-surface-light dark:bg-surface-dark">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold dark:text-white">Curated collections backed by AI</h2>
@@ -355,7 +360,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-12 bg-background-light dark:bg-background-dark border-t border-gray-100 dark:border-gray-800">
+      <section className="py-12 bg-transparent text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-8">Trusted by the world's largest companies</h3>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
@@ -372,7 +377,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-surface-light dark:bg-surface-dark">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">Creative and Marketing Guidance</h2>
           <div className="bg-white dark:bg-background-dark rounded-xl overflow-hidden shadow-sm mb-8 flex flex-col md:flex-row">
@@ -412,7 +417,7 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-gray-50 dark:bg-[#151515]">
+      <section className="py-16 bg-transparent text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-start gap-12">
           <div className="md:w-1/3">
             <h2 className="text-3xl font-bold mb-4 dark:text-white">A weekly dose of inspiration, just for you</h2>

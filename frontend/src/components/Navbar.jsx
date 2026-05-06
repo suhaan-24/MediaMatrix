@@ -28,7 +28,7 @@ export default function Navbar({ onLoginClick }) {
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
             <div className="flex-shrink-0 flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
-              <span className="material-icons-outlined text-primary text-3xl">shutter_speed</span>
+              <img src="/image.png" alt="MediaMatrix Logo" className="h-8 w-8 object-contain" />
               <span className="font-bold text-xl tracking-tight hidden sm:block">MediaMatrix</span>
             </div>
 
