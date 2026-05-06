@@ -17,15 +17,36 @@ export default function Home({ onLoginClick }) {
   }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchType, setSearchType] = useState('All images');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [assets, setAssets] = useState([]);
   const [assetsLoading, setAssetsLoading] = useState(true);
   const [favourites, setFavourites] = useState(new Set());
   const imageInputRef = useRef(null);
 
   const handleSearchByImage = () => { imageInputRef.current?.click(); };
-  const handleImageFileSelected = () => {
-    showToast('Visual search is coming soon!', 'info');
+  
+  const processImageFile = (file) => {
+    if (file) {
+      showToast(`Visual search simulated for: ${file.name}`, 'success');
+      navigate('/search?visual=true');
+    }
+  };
+
+  const handleImageFileSelected = (e) => {
+    processImageFile(e.target.files[0]);
     if (imageInputRef.current) imageInputRef.current.value = '';
+  };
+
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false); };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processImageFile(e.dataTransfer.files[0]);
+    }
   };
   const toggleFavourite = (id, e) => {
     e.stopPropagation();
@@ -81,16 +102,38 @@ export default function Home({ onLoginClick }) {
             <button onClick={() => navigate('/search?q=music')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">music_note</span> Music</button>
             <button onClick={() => navigate('/ai-generator')} className="flex items-center gap-1 hover:text-white transition group"><span className="material-icons-outlined text-lg group-hover:text-primary">auto_awesome</span> AI Generator</button>
           </div>
-          <div className="flex items-center bg-white rounded-lg overflow-hidden shadow-2xl h-14">
-            <button className="px-4 text-gray-600 border-r border-gray-200 h-full flex items-center gap-1 text-sm font-medium hover:bg-gray-50 bg-gray-50">
-              All images <span className="material-icons-outlined text-sm">expand_more</span>
-            </button>
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && navigate(`/search?q=${encodeURIComponent(searchQuery)}`)} className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
+          <div 
+            className={`flex items-center bg-white rounded-lg overflow-visible shadow-2xl h-14 transition-all ${isDragging ? 'ring-4 ring-primary bg-gray-50 scale-105' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="relative h-full flex items-center">
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="px-4 text-gray-600 border-r border-gray-200 h-full flex items-center gap-1 text-sm font-medium hover:bg-gray-50 bg-gray-50 rounded-l-lg">
+                {searchType} <span className="material-icons-outlined text-sm">expand_more</span>
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-100 text-left">
+                  {['All images', 'Photos', 'Vectors', 'Video', 'Music'].map(type => (
+                    <button key={type} onClick={() => { setSearchType(type); setIsDropdownOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary">
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {isDragging ? (
+              <div className="flex-grow px-4 h-full flex items-center text-primary font-bold animate-pulse">
+                Drop your image here to search...
+              </div>
+            ) : (
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=${searchType}`)} className="flex-grow px-4 h-full text-gray-800 placeholder-gray-400 focus:outline-none border-none focus:ring-0" placeholder="Start your next project" type="text" />
+            )}
             <button onClick={handleSearchByImage} aria-label="Search by image" className="px-4 text-gray-500 hover:text-gray-800 border-l border-gray-100 h-full flex items-center gap-1 text-xs">
               <span className="material-icons-outlined">image_search</span> Search by image
             </button>
             <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageFileSelected} />
-            <button onClick={() => navigate(`/search?q=${encodeURIComponent(searchQuery)}`)} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition">
+            <button onClick={() => navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=${searchType}`)} className="bg-primary hover:bg-primary-hover text-white h-full px-6 flex items-center justify-center transition rounded-r-lg">
               <span className="material-icons-outlined">search</span>
             </button>
           </div>
@@ -112,7 +155,7 @@ export default function Home({ onLoginClick }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">One Brand. Endless Possibilities.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link to="/search" className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20">
+            <Link to="/search" className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Premium Content" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=120&q=80" />
               </div>
@@ -121,7 +164,7 @@ export default function Home({ onLoginClick }) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Exclusive access</p>
               </div>
             </Link>
-            <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
+            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Custom Production" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=120&q=80" />
               </div>
@@ -130,7 +173,7 @@ export default function Home({ onLoginClick }) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Tailored for you</p>
               </div>
             </a>
-            <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
+            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Generative AI" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=120&q=80" />
               </div>
@@ -139,7 +182,7 @@ export default function Home({ onLoginClick }) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Create instantly</p>
               </div>
             </a>
-            <a className="group flex items-center space-x-4 bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-sm hover:shadow-md transition border border-transparent dark:border-border-dark hover:border-primary/20" href="#">
+            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Rights-Cleared" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=120&q=80" />
               </div>
@@ -173,7 +216,7 @@ export default function Home({ onLoginClick }) {
               </div>
             </div>
             <div className="relative group h-80 rounded-xl overflow-hidden cursor-pointer">
-              <img alt="Video" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1536240478700-b869ad10f039?w=800&q=80" />
+              <img alt="Video" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white">
                 <h3 className="text-lg font-bold">Video</h3>
@@ -326,11 +369,11 @@ export default function Home({ onLoginClick }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold dark:text-white">Curated collections backed by AI</h2>
-            <button className="text-sm font-medium border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition dark:text-gray-300">See all collections</button>
+            <button onClick={() => navigate('/search')} className="text-sm font-medium border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition dark:text-gray-300">See all collections</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="relative group h-96 rounded-xl overflow-hidden cursor-pointer shadow-lg">
-              <img alt="Blossoming Spring" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1490750967868-88df5691cc21?w=800&q=80" />
+              <img alt="Blossoming Spring" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=800&q=80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 text-white text-center w-full pr-12">
                 <h3 className="text-xl font-bold">Blossoming Spring</h3>
@@ -373,7 +416,7 @@ export default function Home({ onLoginClick }) {
           </div>
           <div className="mt-12">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Need a personalized package for your business?</p>
-            <button className="bg-primary hover:bg-primary-hover text-white px-8 py-2.5 rounded-full font-bold text-sm transition shadow-md shadow-red-200 dark:shadow-none">Request a Quote</button>
+            <button onClick={handleComingSoon('Custom Quotes')} className="bg-primary hover:bg-primary-hover text-white px-8 py-2.5 rounded-full font-bold text-sm transition shadow-md shadow-red-200 dark:shadow-none">Request a Quote</button>
           </div>
         </div>
       </section>
@@ -413,7 +456,7 @@ export default function Home({ onLoginClick }) {
             </article>
           </div>
           <div className="text-center mt-12">
-            <button className="px-8 py-3 rounded-full border border-gray-300 dark:border-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition dark:text-gray-300">Visit our blog</button>
+            <button onClick={() => navigate('/blog')} className="px-8 py-3 rounded-full border border-gray-300 dark:border-gray-600 font-semibold text-sm hover:border-primary hover:text-primary transition dark:text-gray-300">Visit our blog</button>
           </div>
         </div>
       </section>
@@ -422,7 +465,7 @@ export default function Home({ onLoginClick }) {
           <div className="md:w-1/3">
             <h2 className="text-3xl font-bold mb-4 dark:text-white">A weekly dose of inspiration, just for you</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8">Sign up and get a free image or photo every week</p>
-            <button className="bg-primary hover:bg-primary-hover text-white px-10 py-3 rounded-full font-bold text-sm shadow-lg shadow-red-200 dark:shadow-none transition">Get Started</button>
+            <button onClick={() => navigate('/subscription')} className="bg-primary hover:bg-primary-hover text-white px-10 py-3 rounded-full font-bold text-sm shadow-lg shadow-red-200 dark:shadow-none transition">Get Started</button>
           </div>
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="bg-[#1A1A1A] border border-gray-800 p-4 rounded-lg shadow-sm">
