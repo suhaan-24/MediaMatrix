@@ -10,6 +10,22 @@ export default function Navbar({ onLoginClick }) {
   const { showToast } = useToast();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return true;
+  });
+
+  React.useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   const handleSearchSubmit = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -24,7 +40,7 @@ export default function Navbar({ onLoginClick }) {
 
   return (
     <>
-      <nav className="bg-background-dark text-white border-b border-gray-800">
+      <nav className="bg-white dark:bg-background-dark text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
             <div className="flex-shrink-0 flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
@@ -36,13 +52,13 @@ export default function Navbar({ onLoginClick }) {
             <div className="flex-1 max-w-2xl hidden md:flex">
               <div className="relative w-full group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="material-icons text-gray-500 text-xl">search</span>
+                  <span className="material-icons text-gray-400 dark:text-gray-500 text-xl">search</span>
                 </div>
                 <input 
                   value={searchQuery} 
                   onChange={(e) => setSearchQuery(e.target.value)} 
                   onKeyDown={handleSearchSubmit} 
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-full leading-5 bg-gray-900 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" 
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-full leading-5 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" 
                   placeholder="Search for images, videos, music..." 
                   type="text"
                   aria-label="Search assets"
@@ -51,13 +67,16 @@ export default function Navbar({ onLoginClick }) {
             </div>
 
             <div className="flex items-center space-x-4 sm:space-x-6 text-sm">
+              <button onClick={() => setIsDarkMode(!isDarkMode)} className="hover:text-primary transition" aria-label="Toggle theme">
+                <span className="material-icons-outlined text-xl">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              </button>
               <Link to="/wishlist" aria-label="Favourites" className="hover:text-primary transition"><span className="material-icons-outlined text-xl">favorite_border</span></Link>
               <Link to="/cart" aria-label="Shopping cart" className="hover:text-primary transition"><span className="material-icons-outlined text-xl">shopping_cart</span></Link>
               {user ? (
                 <div className="flex items-center gap-4">
                   <Link to="/profile" className="flex items-center gap-2 hover:text-primary transition group">
                     <span className="material-icons-outlined text-xl group-hover:scale-110 transition">account_circle</span>
-                    <span className="text-gray-300 font-medium hidden sm:block">Hi, {user.name}</span>
+                    <span className="text-gray-700 dark:text-gray-300 font-medium hidden sm:block">Hi, {user.name}</span>
                   </Link>
                   <button onClick={() => setIsUploadOpen(true)} className="px-4 py-1.5 bg-primary hover:bg-primary-hover border border-primary text-white rounded text-xs transition font-bold flex items-center gap-1">
                     <span className="material-icons text-sm">cloud_upload</span> Upload
@@ -70,14 +89,14 @@ export default function Navbar({ onLoginClick }) {
             </div>
           </div>
           {/* MM-02: Removed dropdown arrows. Categories now link to search. MM-01: AI Generator routes to search. */}
-          <div className="hidden md:flex space-x-8 pb-3 text-xs text-gray-400 font-medium">
-            <Link to="/search?type=image" className="hover:text-white transition">Images</Link>
-            <Link to="/search?type=video" className="hover:text-white transition">Video</Link>
-            <Link to="/search?type=audio" className="hover:text-white transition">Music</Link>
-            <Link to="/search" className="hover:text-white transition">Editorial</Link>
-            <Link to="/search?type=3d" className="hover:text-white transition">3D</Link>
-            <Link to="/ai-generator" className="text-primary hover:text-red-400 flex items-center gap-1">AI Generator <span className="bg-primary/20 text-primary px-1 rounded text-[9px] border border-primary/30">NEW</span></Link>
-            <Link to="/subscription" className="ml-auto hover:text-white transition font-semibold">See Pricing</Link>
+          <div className="hidden md:flex space-x-8 pb-3 text-xs text-gray-600 dark:text-gray-400 font-medium">
+            <Link to="/search?type=image" className="hover:text-primary dark:hover:text-white transition">Images</Link>
+            <Link to="/search?type=video" className="hover:text-primary dark:hover:text-white transition">Video</Link>
+            <Link to="/search?type=audio" className="hover:text-primary dark:hover:text-white transition">Music</Link>
+            <Link to="/search" className="hover:text-primary dark:hover:text-white transition">Editorial</Link>
+            <Link to="/search?type=3d" className="hover:text-primary dark:hover:text-white transition">3D</Link>
+            <Link to="/ai-generator" className="text-primary hover:text-red-400 flex items-center gap-1">AI Generator <span className="bg-primary/10 dark:bg-primary/20 text-primary px-1 rounded text-[9px] border border-primary/30">NEW</span></Link>
+            <Link to="/subscription" className="ml-auto hover:text-primary dark:hover:text-white transition font-semibold">See Pricing</Link>
           </div>
         </div>
       </nav>
