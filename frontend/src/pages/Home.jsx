@@ -200,16 +200,16 @@ export default function Home({ onLoginClick }) {
           <div className="mb-8">
             <h2 className="text-2xl md:text-3xl font-bold dark:text-white mb-6">Explore popular and handpicked visuals</h2>
             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
+              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
                 <span className="material-icons-outlined text-sm">search</span> Valentine's day
               </button>
-              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
+              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
                 <span className="material-icons-outlined text-sm">search</span> Spring flowers
               </button>
-              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
+              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
                 <span className="material-icons-outlined text-sm">search</span> Winter landscape
               </button>
-              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
+              <button className="flex-shrink-0 flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 text-xs font-medium hover:border-primary hover:text-primary transition dark:text-gray-300 dark:hover:text-primary">
                 <span className="material-icons-outlined text-sm">search</span> Abstract background
               </button>
               <div className="ml-auto flex items-center gap-4 text-xs font-bold text-gray-500">
@@ -425,7 +425,7 @@ export default function Home({ onLoginClick }) {
             <button className="bg-primary hover:bg-primary-hover text-white px-10 py-3 rounded-full font-bold text-sm shadow-lg shadow-red-200 dark:shadow-none transition">Get Started</button>
           </div>
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
+            <div className="bg-[#1A1A1A] border border-gray-800 p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
                 <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&q=80" />
               </div>
@@ -433,7 +433,7 @@ export default function Home({ onLoginClick }) {
               <p className="text-xs text-gray-500 mb-2">By Shift Drive</p>
               <a className="text-blue-500 text-xs font-semibold hover:underline" href="#">Download</a>
             </div>
-            <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm">
+            <div className="bg-[#1A1A1A] border border-gray-800 p-4 rounded-lg shadow-sm">
               <div className="rounded overflow-hidden mb-4 h-40">
                 <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80" />
               </div>
@@ -447,13 +447,13 @@ export default function Home({ onLoginClick }) {
       <footer className="bg-background-dark text-gray-400 text-xs py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8 border-b border-gray-800 pb-8 text-center text-[10px] text-gray-500">
-            We have more than <span className="text-white">600,000,000 assets</span> on Shutterstock.com as of December 31, 2023.
+            We have more than <span className="text-white">600,000,000 assets</span> on MediaMatrix as of December 31, 2023.
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
             <div className="col-span-2 lg:col-span-1">
-              <div className="flex items-center space-x-2 mb-6 text-white">
-                <span className="material-icons-outlined text-primary text-2xl">shutter_speed</span>
-                <span className="font-bold text-lg tracking-tight">ShutterStock</span>
+              <div className="flex items-center space-x-2 mb-6 text-white cursor-pointer" onClick={() => navigate('/')}>
+                <img src="/image.png" alt="MediaMatrix Logo" className="h-8 object-contain" />
+                <span className="font-bold text-xl tracking-tight">MediaMatrix</span>
               </div>
               <button className="border border-gray-600 rounded px-3 py-1.5 flex items-center gap-2 text-white hover:border-gray-400 transition mb-6">
                 <span className="material-icons-outlined text-sm">language</span> English <span className="material-icons-outlined text-sm">expand_more</span>
@@ -518,7 +518,7 @@ export default function Home({ onLoginClick }) {
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-800">
-            <p className="mb-4 md:mb-0">© 2003-2024 Shutterstock, Inc.</p>
+            <p className="mb-4 md:mb-0">© 2003-2024 MediaMatrix, Inc.</p>
             <div className="flex space-x-4">
               <a className="hover:text-white" href="#"><span className="text-lg font-bold">f</span></a>
               <a className="hover:text-white" href="#"><span className="text-lg font-bold">t</span></a>
