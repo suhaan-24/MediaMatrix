@@ -1,12 +1,14 @@
 # MediaMatrix — Digital Asset Management
 
+🌐 **Live App: [https://media-matrix-one.vercel.app/](https://media-matrix-one.vercel.app/)**
+
 MediaMatrix is a professional-grade Digital Asset Management (DAM) platform for seamless uploading, organizing, and discovering high-quality digital assets.
 
 ## Live Demo
 
 | Service | URL |
 |---------|-----|
-| Frontend | *(deploy to Vercel — see below)* |
+| Frontend | [https://media-matrix-one.vercel.app/](https://media-matrix-one.vercel.app/) |
 | Backend API | *(deploy to Render — see below)* |
 | Health Check | `GET /api/health` |
 
