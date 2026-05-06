@@ -51,8 +51,8 @@ export default function Navbar({ onLoginClick }) {
             </div>
 
             <div className="flex items-center space-x-4 sm:space-x-6 text-sm">
-              <button aria-label="Favourites" onClick={handleComingSoon('Favourites page')} className="hover:text-primary transition"><span className="material-icons-outlined text-xl">favorite_border</span></button>
-              <button aria-label="Shopping cart" onClick={handleComingSoon('Shopping cart')} className="hover:text-primary transition"><span className="material-icons-outlined text-xl">shopping_cart</span></button>
+              <Link to="/wishlist" aria-label="Favourites" className="hover:text-primary transition"><span className="material-icons-outlined text-xl">favorite_border</span></Link>
+              <Link to="/cart" aria-label="Shopping cart" className="hover:text-primary transition"><span className="material-icons-outlined text-xl">shopping_cart</span></Link>
               {user ? (
                 <div className="flex items-center gap-4">
                   <Link to="/profile" className="flex items-center gap-2 hover:text-primary transition group">

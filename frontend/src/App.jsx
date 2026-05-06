@@ -9,6 +9,9 @@ import AIGenerator from './pages/AIGenerator';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import Blog from './pages/Blog';
+import Profile from './pages/Profile';
+import Wishlist from './pages/Wishlist';
+import Cart from './pages/Cart';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -34,12 +37,11 @@ function App() {
           <Route path="/subscription/success" element={<SubscriptionSuccess onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/ai-generator" element={<AIGenerator onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/blog" element={<Blog onLoginClick={() => setIsLoginOpen(true)} />} />
+          <Route path="/wishlist" element={<Wishlist onLoginClick={() => setIsLoginOpen(true)} />} />
+          <Route path="/cart" element={<Cart onLoginClick={() => setIsLoginOpen(true)} />} />
           <Route path="/profile" element={
             <ProtectedRoute onLoginClick={() => setIsLoginOpen(true)}>
-              <div className="pt-24 text-center">
-                <h1 className="text-3xl font-bold dark:text-white mb-4">My Profile</h1>
-                <p className="text-gray-500">This is a fully protected route. Only logged-in users can see this!</p>
-              </div>
+              <Profile onLoginClick={() => setIsLoginOpen(true)} />
             </ProtectedRoute>
           } />
         </Routes>
