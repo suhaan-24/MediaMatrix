@@ -287,7 +287,7 @@ export default function Home({ onLoginClick }) {
                     )}
                   </div>
                 ) : (
-                  <img alt={asset.title} className="w-full object-cover" src={getMediaUrl(asset.fileUrl)} />
+                  <img alt={asset.title} className="w-full object-cover" src={getMediaUrl(asset.fileUrl)} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&q=80'; }} />
                 )}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-end justify-between p-4 mix-blend-multiply"></div>
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-4">
