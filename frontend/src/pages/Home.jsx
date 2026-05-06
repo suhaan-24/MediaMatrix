@@ -82,7 +82,7 @@ export default function Home({ onLoginClick }) {
   useEffect(() => { fetchAssets(); }, []);
 
   return (
-    <div className="w-full h-full min-h-screen bg-[#111111] text-white">
+    <div className="w-full h-full min-h-screen bg-gray-50 dark:bg-[#111111] text-gray-900 dark:text-white transition-colors duration-200">
 
       <div className="bg-primary text-white text-xs py-2 text-center font-medium">
         Get 10 royalty-free image downloads each month with a cost-saving subscription. <button onClick={() => navigate('/subscription')} className="underline ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase hover:bg-gray-100">Buy now</button>
@@ -151,46 +151,46 @@ export default function Home({ onLoginClick }) {
       {/* ── Interactive GSAP Carousel ── */}
       <InteractiveCarousel />
 
-      <section className="py-12 bg-transparent text-white">
+      <section className="py-12 bg-transparent text-gray-900 dark:text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">One Brand. Endless Possibilities.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link to="/search" className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50">
+            <Link to="/search" className="group flex items-center space-x-4 bg-white dark:bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 dark:border-gray-800 hover:border-primary/50">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Premium Content" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=120&q=80" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Premium Content</h3>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Premium Content</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Exclusive access</p>
               </div>
             </Link>
-            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
+            <Link to="/search" className="group flex items-center space-x-4 bg-white dark:bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 dark:border-gray-800 hover:border-primary/50">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Custom Production" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=120&q=80" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Custom Production</h3>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Custom Production</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Tailored for you</p>
               </div>
-            </a>
-            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
+            </Link>
+            <Link to="/search" className="group flex items-center space-x-4 bg-white dark:bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 dark:border-gray-800 hover:border-primary/50">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Generative AI" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=120&q=80" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Generative AI</h3>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Generative AI</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Create instantly</p>
               </div>
-            </a>
-            <a className="group flex items-center space-x-4 bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-800 hover:border-primary/50" href="#">
+            </Link>
+            <Link to="/search" className="group flex items-center space-x-4 bg-white dark:bg-[#1A1A1A] p-4 rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 dark:border-gray-800 hover:border-primary/50">
               <div className="w-12 h-12 rounded overflow-hidden">
                 <img alt="Rights-Cleared" className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=120&q=80" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-text-light dark:text-white group-hover:text-primary transition">Rights-Cleared Datasets</h3>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Rights-Cleared Datasets</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Safe for commercial use</p>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -310,58 +310,58 @@ export default function Home({ onLoginClick }) {
           </div>
         </div>
       </section>
-      <section className="py-16 bg-transparent text-white">
+      <section className="py-16 bg-transparent text-gray-900 dark:text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8 dark:text-white">Your stories aren't one-dimensional, neither is our content library</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-red-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=100&q=80" />
+            <Link to="/search?type=image" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Images</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-blue-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1536240478700-b869ad10f039?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Images</span>
+            </Link>
+            <Link to="/search?type=video" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1536240478700-b869ad10f039?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Video</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-yellow-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Video</span>
+            </Link>
+            <Link to="/search?type=audio" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Music</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-purple-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Music</span>
+            </Link>
+            <Link to="/search" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Sound effects</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-green-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Sound effects</span>
+            </Link>
+            <Link to="/ai-generator" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">AI Image Generator</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-indigo-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">AI Generator</span>
+            </Link>
+            <Link to="/search" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Vectors</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-pink-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Vectors</span>
+            </Link>
+            <Link to="/search" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Photos</span>
-            </a>
-            <a className="flex items-center space-x-3 group" href="#">
-              <div className="w-12 h-12 rounded bg-orange-100 flex items-center justify-center overflow-hidden">
-                <img className="w-full h-full object-cover" loading="lazy" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=100&q=80" />
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Photos</span>
+            </Link>
+            <Link to="/search" className="flex items-center space-x-3 group bg-white dark:bg-[#1A1A1A] p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/50 transition shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded overflow-hidden">
+                <img className="w-full h-full object-cover group-hover:scale-110 transition duration-500" loading="lazy" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=200&q=80" />
               </div>
-              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary">Templates</span>
-            </a>
+              <span className="font-medium text-sm text-gray-900 dark:text-white group-hover:text-primary transition">Templates</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -415,8 +415,7 @@ export default function Home({ onLoginClick }) {
             <span className="text-sm font-bold bg-gray-800 text-white dark:bg-white dark:text-black px-1">Celebrity</span>
           </div>
           <div className="mt-12">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Need a personalized package for your business?</p>
-            <button onClick={handleComingSoon('Custom Quotes')} className="bg-primary hover:bg-primary-hover text-white px-8 py-2.5 rounded-full font-bold text-sm transition shadow-md shadow-red-200 dark:shadow-none">Request a Quote</button>
+            <button onClick={() => showToast('Quote request sent! Our team will contact you shortly.', 'success')} className="bg-primary hover:bg-primary-hover text-white px-8 py-2.5 rounded-full font-bold text-sm transition shadow-md shadow-red-200 dark:shadow-none">Request a Quote</button>
           </div>
         </div>
       </section>
