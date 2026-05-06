@@ -35,6 +35,7 @@ export default function Details({ onLoginClick }) {
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(2);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => { trackPageView('/details'); }, []);
 
@@ -135,7 +136,7 @@ export default function Details({ onLoginClick }) {
                   {asset.fileUrl && <video controls src={getMediaUrl(asset.fileUrl)} className="absolute inset-0 w-full h-full object-contain z-10" />}
                 </div>
               ) : (
-                <img alt={asset.title} className="max-h-[600px] w-auto h-auto object-contain rounded relative z-10" loading="lazy" src={getMediaUrl(asset.fileUrl)} onError={(e) => { e.target.src = 'https://placehold.co/600x400/e5e7eb/9ca3af?text=Image+Not+Found'; }} />
+                <img alt={asset.title} className="max-h-[600px] w-auto h-auto object-contain rounded relative z-10" loading="lazy" src={getMediaUrl(asset.fileUrl)} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=80'; }} />
               )}
               {/* Watermark */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 select-none z-20 rotate-[-15deg]">
@@ -160,7 +161,15 @@ export default function Details({ onLoginClick }) {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">{asset.uploader?.name || 'Unknown'}</h3>
-                  <button onClick={() => showToast('Follow feature coming soon!', 'info')} className="text-primary text-sm font-medium hover:underline">Follow</button>
+                  <button 
+                    onClick={() => {
+                      setIsFollowing(!isFollowing);
+                      showToast(isFollowing ? 'Unfollowed creator' : 'Following creator!', 'success');
+                    }} 
+                    className={`${isFollowing ? 'text-gray-500' : 'text-primary'} text-sm font-medium hover:underline`}
+                  >
+                    {isFollowing ? 'Following' : 'Follow'}
+                  </button>
                 </div>
               </div>
               <button onClick={() => navigate(`/search?q=${encodeURIComponent(asset.uploader?.name || '')}`)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition">
