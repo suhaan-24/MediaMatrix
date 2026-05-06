@@ -1,5 +1,6 @@
 import Asset from '../models/Asset.js';
 import fs from 'fs';
+import mongoose from 'mongoose';
 import { bucket } from '../config/firebase.js';
 import { esClient } from '../config/elasticsearch.js';
 
@@ -95,8 +96,6 @@ export const uploadAsset = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server upload error', error: error.message });
   }
 };
-
-import mongoose from 'mongoose';
 
 // @desc    Get all assets (with optional search/filter + pagination)
 // @route   GET /api/assets
